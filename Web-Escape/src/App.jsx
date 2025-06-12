@@ -1,14 +1,32 @@
 
 import './App.css'
+import { createBrowserRouter,RouterProvider } from 'react-router-dom'
+import Login from "./components/Auth/Login";
+import Signup from "./components/Auth/Signup";
+import Home from "./pages/Home";
 
+const appRouter = createBrowserRouter([
+  {
+    path:"/",
+    element:<Home/>
+    
+  },
+  {
+    path:"/login",
+    element:<Login/>
+  },
+  {
+    path:"/signup",
+    element:<Signup/>
+  }
+]);
 function App() {
 
 
   return (
     <>
-      <p className="text-3xl bg-red-300 font-extrabold">
-        Click on the Vite and React logos to learn more
-      </p>
+     
+      <RouterProvider router ={appRouter}/>
     </>
   )
 }
