@@ -1,34 +1,19 @@
 
-import './App.css'
-import { createBrowserRouter,RouterProvider } from 'react-router-dom'
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
 import Home from "./pages/Home";
+import FindObjectGame from "./rooms/easy/FindObjectGame";
 
-const appRouter = createBrowserRouter([
-  {
-    path:"/",
-    element:<Home/>
-    
-  },
-  {
-    path:"/login",
-    element:<Login/>
-  },
-  {
-    path:"/signup",
-    element:<Signup/>
-  }
-]);
-function App() {
+const routes = [
+  { path: "/", element: <Home /> },
+  { path: "/login", element: <Login /> },
+  { path: "/signup", element: <Signup /> },
+  { path: "/level/find-object", element: <FindObjectGame /> },
+];
 
+const router = createBrowserRouter(routes);
 
-  return (
-    <>
-     
-      <RouterProvider router ={appRouter}/>
-    </>
-  )
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App
