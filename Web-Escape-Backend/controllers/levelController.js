@@ -29,7 +29,7 @@ export const getLevelData = async (req, res) => {
       return res.json({ question: random.question, id: random._id });
     } else {
       const existing = await Level.findById(assignedId);
-      return res.json({ question: existing.question, id: existing._id });
+      return res.json({ question: existing.question, data : existing.data, id: existing._id });
     }
 
   } catch (err) {
@@ -38,11 +38,10 @@ export const getLevelData = async (req, res) => {
   }
 };
 
-// Answer submission and validation
 export const submitAnswer = async (req, res) => {
   const userId = req.id;
   const level = req.params.level;
-  const userAnswer = req.body.answer?.trim().toLowerCase();
+
   try {
     const progress = await GameProgress.findOne({ user: userId });
     if (!progress) return res.status(400).json({ error: 'Game progress not found' });
@@ -53,8 +52,26 @@ export const submitAnswer = async (req, res) => {
     const levelData = await Level.findById(assignedId);
     if (!levelData) return res.status(404).json({ error: 'Assigned level data not found' });
 
-    const correctAnswer = levelData.correctAnswer.trim().toLowerCase();
-    const isCorrect = userAnswer === correctAnswer;
+    const answerType = levelData.answerType;
+
+    let isCorrect = false;
+
+    if (answerType === "string") {
+      const userAnswer = req.body.answer?.trim().toLowerCase();
+      const correctAnswer = levelData.correctAnswer.trim().toLowerCase();
+      isCorrect = userAnswer === correctAnswer;
+    } else if (answerType === "coordinates") {
+      const { x, y } = req.body;
+      const { x1, y1, x2, y2 } = levelData.correctAnswer;
+
+      isCorrect =
+        x >= Math.min(x1, x2) &&
+        x <= Math.max(x1, x2) &&
+        y >= Math.min(y1, y2) &&
+        y <= Math.max(y1, y2);
+    } else {
+      return res.status(400).json({ error: "Unsupported answer type" });
+    }
 
     if (isCorrect) {
       const levelIndex = parseInt(level.split('.')[0]) - 1;
@@ -63,9 +80,7 @@ export const submitAnswer = async (req, res) => {
         progress.score += 10;
       }
 
-      // progress.answers.set(level, userAnswer);
       await progress.save();
-
       return res.json({ success: true, message: 'Correct answer' });
     } else {
       return res.json({ success: false, message: 'Wrong answer' });
@@ -76,5 +91,3 @@ export const submitAnswer = async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 };
-
-
