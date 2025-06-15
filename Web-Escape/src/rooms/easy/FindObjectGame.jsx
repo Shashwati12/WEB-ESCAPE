@@ -1,4 +1,4 @@
-// src/components/FindObjectGame.jsx
+
 import { useEffect, useState } from "react";
 import useGameStore from "../../state/gameStore";
 import skeletonsImg from "../../assets/Skeletons.png"
