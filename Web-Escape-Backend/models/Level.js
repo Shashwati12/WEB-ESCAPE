@@ -13,8 +13,15 @@ const levelSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed, // use this for extra data like options, images, etc.
     default: {},
   },
+
   correctAnswer: {
-    type: String, // or array/number depending on level type
+    type: mongoose.Schema.Types.Mixed, // or array/number depending on level type
+    required: true,
+  },
+
+  answerType: {
+    type: String,
+    enum: ['string', 'coordinates'],
     required: true,
   }
 });
