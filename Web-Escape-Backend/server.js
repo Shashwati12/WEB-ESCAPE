@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDb from "./utils/database.js";
 import authRoutes from "./routes/authRoutes.js";
+import gameRoutes from "./routes/gameRoutes.js"
+import levelRoutes from "./routes/levelRoutes.js"
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -26,6 +28,8 @@ const corsOption={
 app.use(cors(corsOption));
 
 app.use("/api/v1/user", authRoutes);
+app.use("/api/v1/game", gameRoutes);
+app.use("/api/v1/level", levelRoutes)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT,()=>{
