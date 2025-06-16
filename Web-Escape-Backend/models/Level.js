@@ -6,19 +6,17 @@ const levelSchema = new mongoose.Schema({
     required: true,
   },
   question: {
-    type: String, // This can be a description, image URL, riddle text, etc.
+    type: String,
     required: true,
   },
   data: {
-    type: mongoose.Schema.Types.Mixed, // use this for extra data like options, images, etc.
+    type: mongoose.Schema.Types.Mixed,
     default: {},
   },
-
   correctAnswer: {
-    type: mongoose.Schema.Types.Mixed, // or array/number depending on level type
+    type: mongoose.Schema.Types.Mixed,
     required: true,
   },
-
   answerType: {
     type: String,
     enum: ['string', 'coordinates'],
@@ -27,3 +25,4 @@ const levelSchema = new mongoose.Schema({
 });
 
 export const Level = mongoose.model('Level', levelSchema);
+

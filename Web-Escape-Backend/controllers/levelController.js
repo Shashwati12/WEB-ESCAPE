@@ -15,7 +15,7 @@ export const getLevelData = async (req, res) => {
     let assignedId = progress.assignedLevels.get(level);
 
     if (!assignedId) {
-      const allVariants = await Level.find({ levelNumber: level });
+      const allVariants = await Level.find({ levelNumber: Number(level) });
       if (!allVariants.length) {
         return res.status(404).json({ error: 'No variants found for this level' });
       }
@@ -26,7 +26,11 @@ export const getLevelData = async (req, res) => {
       progress.assignedLevels.set(level, assignedId);
       await progress.save();
 
-      return res.json({ question: random.question, id: random._id });
+      return res.json({
+        question: random.question,
+        data: random.data, 
+        id: random._id
+      });
     } else {
       const existing = await Level.findById(assignedId);
       return res.json({ question: existing.question, data : existing.data, id: existing._id });
