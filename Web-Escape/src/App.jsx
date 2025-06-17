@@ -4,6 +4,7 @@ import Signup from "./components/Auth/Signup";
 import Home from "./pages/Home";
 import FindObjectGame from "./rooms/easy/FindObjectGame";
 import MatchQuestGame from "./rooms/easy/MatchOuest";
+import ShadowGame from "./rooms/easy/ShadowShape";
 
 const routes = [
   { path: "/", element: <Home />},
@@ -11,6 +12,8 @@ const routes = [
   { path: "/signup", element: <Signup />},
   { path: "/level/find-object", element: <FindObjectGame />},
   { path: "/level/match-quest", element: <MatchQuestGame />},
+  {path:"/level/ShadowGame", element:<ShadowGame/>},
+  
 ];
 
 const router = createBrowserRouter(routes);
