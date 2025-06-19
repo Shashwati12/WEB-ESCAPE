@@ -13,7 +13,7 @@ const routes = [
   { path: "/signup", element: <Signup />},
   { path: "/level/find-object", element: <FindObjectGame />},
   { path: "/level/match-quest", element: <MatchQuestGame />},
-  {path: "/level/pattern-breaker",element:<PatternBreakerLevel/>}
+  {path: "/level/pattern-breaker",element:<PatternBreakerLevel/>},
   { path: "/level/woordle" , element: <WordleGame />}
 ];
 
