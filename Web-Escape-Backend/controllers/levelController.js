@@ -42,6 +42,7 @@ export const getLevelData = async (req, res) => {
   }
 };
 
+
 export const submitAnswer = async (req, res) => {
   const userId = req.id;
   const level = req.params.level;
@@ -64,7 +65,9 @@ export const submitAnswer = async (req, res) => {
       const userAnswer = req.body.answer?.trim().toLowerCase();
       const correctAnswer = levelData.correctAnswer.trim().toLowerCase();
       isCorrect = userAnswer === correctAnswer;
-    } else if (answerType === "coordinates") {
+    } 
+
+    else if (answerType === "coordinates") {
       const { x, y } = req.body;
       const { x1, y1, x2, y2 } = levelData.correctAnswer;
 
@@ -73,7 +76,69 @@ export const submitAnswer = async (req, res) => {
         x <= Math.max(x1, x2) &&
         y >= Math.min(y1, y2) &&
         y <= Math.max(y1, y2);
-    } else {
+    } 
+
+    else if (answerType === "wordle") {
+      const userGuess = req.body.answer?.toLowerCase();
+      const correctWord = levelData.correctAnswer.toLowerCase();
+
+      if (!userGuess || userGuess.length !== correctWord.length) {
+        return res.status(400).json({ error: 'Invalid word length' });
+      }
+
+      const feedback = [];
+      const correctUsed = Array(correctWord.length).fill(false);
+
+      // First pass: check correct positions
+      for (let i = 0; i < correctWord.length; i++) {
+        if (userGuess[i] === correctWord[i]) {
+          feedback[i] = "correct";
+          correctUsed[i] = true;
+        } else {
+          feedback[i] = "";
+        }
+      }
+
+      // Second pass: check for present but misplaced letters
+      for (let i = 0; i < correctWord.length; i++) {
+        if (feedback[i]) continue;
+
+        let found = false;
+        for (let j = 0; j < correctWord.length; j++) {
+          if (!correctUsed[j] && userGuess[i] === correctWord[j]) {
+            found = true;
+            correctUsed[j] = true;
+            break;
+          }
+        }
+
+        feedback[i] = found ? "present" : "absent";
+      }
+
+      isCorrect = userGuess === correctWord;
+
+      if (isCorrect) {
+        const levelIndex = parseInt(level.split('.')[0]) - 1;
+        if (!progress.levelStatus[levelIndex]) {
+          progress.levelStatus[levelIndex] = true;
+          progress.score += 10;
+        }
+        await progress.save();
+        return res.json({
+          success: true,
+          message: "Correct answer",
+          feedback,
+        });
+      } else {
+        return res.json({
+          success: false,
+          message: "Wrong answer",
+          feedback,
+        });
+      }
+    }
+
+    else {
       return res.status(400).json({ error: "Unsupported answer type" });
     }
 
