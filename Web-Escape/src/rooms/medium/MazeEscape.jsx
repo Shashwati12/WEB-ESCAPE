@@ -36,7 +36,8 @@ const MazeEscapeLevel = () => {
     const currentCell = maze[y][x];
     const nextCell = maze[newY][newX];
 
-    // Only allow move if no wall in the movement direction
+    if (!nextCell || !currentCell) return;
+
     if (
       (dx === 1 && currentCell.right) ||
       (dx === -1 && currentCell.left) ||
@@ -54,9 +55,10 @@ const MazeEscapeLevel = () => {
           { withCredentials: true }
         );
         setMessage(res.data.success ? "🎉 You solved the maze!" : "🚫 Wrong solution.");
-      } catch (err) {
-        setMessage("⚠️ Error submitting answer.");
-      }
+      }catch{(err) => {
+  console.error("Failed to load maze", err?.message || err);
+  setMessage("⚠️ Failed to load maze data.");
+    }};
     }
   };
 
