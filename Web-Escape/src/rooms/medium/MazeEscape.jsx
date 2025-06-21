@@ -55,10 +55,10 @@ const MazeEscapeLevel = () => {
           { withCredentials: true }
         );
         setMessage(res.data.success ? "🎉 You solved the maze!" : "🚫 Wrong solution.");
-      }catch{(err) => {
-  console.error("Failed to load maze", err?.message || err);
-  setMessage("⚠️ Failed to load maze data.");
-    }};
+      }catch (err) {
+        console.error("Submit error:", err?.message || err);
+        setMessage("⚠️ Error submitting answer.");
+      }
     }
   };
 
