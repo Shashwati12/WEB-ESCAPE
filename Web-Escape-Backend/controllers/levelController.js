@@ -61,8 +61,6 @@ export const submitAnswer = async (req, res) => {
 
     let isCorrect = false;
 
-    
-    //
      if (answerType === "string") {
       const correctAnswer = levelData.correctAnswer;
       const userAnswer = req.body.answer?.trim().toLowerCase();
@@ -88,16 +86,6 @@ export const submitAnswer = async (req, res) => {
 
     } 
   
-
-    // if (answerType === "string") {
-    //   const userAnswer = req.body.answer?.trim().toLowerCase();
-    //   const correctAnswer = levelData.correctAnswer.trim().toLowerCase();
-    //   isCorrect = userAnswer === correctAnswer;
-     else if (answerType === "coordinates") {
-      const correctAnswer = levelData.correctAnswer.trim().toLowerCase();
-      isCorrect = userAnswer === correctAnswer;
-    } 
-
     else if (answerType === "coordinates") {
       const { x, y } = req.body;
       const { x1, y1, x2, y2 } = levelData.correctAnswer;
