@@ -61,8 +61,39 @@ export const submitAnswer = async (req, res) => {
 
     let isCorrect = false;
 
-    if (answerType === "string") {
+    
+    //
+     if (answerType === "string") {
+      const correctAnswer = levelData.correctAnswer;
       const userAnswer = req.body.answer?.trim().toLowerCase();
+  
+      if (Array.isArray(correctAnswer)) {
+        const index = req.body.index;
+
+        if (
+          typeof index === "number" &&
+          correctAnswer[index] &&
+          typeof correctAnswer[index] === "string"
+        ) {
+          isCorrect =
+            userAnswer === correctAnswer[index].trim().toLowerCase();
+        } else {
+          return res.status(400).json({ error: "Invalid index or answer format" });
+        }
+
+      } else {
+        
+        isCorrect = userAnswer === correctAnswer.trim().toLowerCase();
+      }
+
+    } 
+  
+
+    // if (answerType === "string") {
+    //   const userAnswer = req.body.answer?.trim().toLowerCase();
+    //   const correctAnswer = levelData.correctAnswer.trim().toLowerCase();
+    //   isCorrect = userAnswer === correctAnswer;
+     else if (answerType === "coordinates") {
       const correctAnswer = levelData.correctAnswer.trim().toLowerCase();
       isCorrect = userAnswer === correctAnswer;
     } 
