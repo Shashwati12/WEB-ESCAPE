@@ -7,6 +7,7 @@ import MatchQuestGame from "./rooms/easy/MatchOuest";
 import PatternBreakerLevel from "./rooms/medium/PatternBreaker";
 import WordleGame from "./rooms/hard/WordleClone";
 import MazeEscapeLevel from "./rooms/medium/MazeEscape";
+import FlappyBirdLevel from "./rooms/hard/FlappyBird";
 
 const routes = [
   { path: "/", element: <Home />},
@@ -16,7 +17,8 @@ const routes = [
   { path: "/level/match-quest", element: <MatchQuestGame />},
   { path: "/level/pattern-breaker",element:<PatternBreakerLevel/>},
   { path: "/level/woordle" , element: <WordleGame />},
-  { path: "/level/maze-escape", element: <MazeEscapeLevel />}
+  { path: "/level/maze-escape", element: <MazeEscapeLevel />},
+  { path: "/level/flappy-bird", element: <FlappyBirdLevel />}
 ];
 
 const router = createBrowserRouter(routes);
