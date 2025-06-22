@@ -138,6 +138,20 @@ export const submitAnswer = async (req, res) => {
       }
     }
 
+    else if (answerType === "score") {
+  const userScore = parseInt(req.body.score);
+  const requiredScore = parseInt(levelData.correctAnswer); // Save required score in correctAnswer
+
+  if (isNaN(userScore) || isNaN(requiredScore)) {
+    return res.status(400).json({ error: 'Invalid score values' });
+  }
+
+  isCorrect = userScore >= requiredScore;
+}
+
+
+    
+
     else {
       return res.status(400).json({ error: "Unsupported answer type" });
     }
