@@ -6,6 +6,10 @@ import FindObjectGame from "./rooms/easy/FindObjectGame";
 import MatchQuestGame from "./rooms/easy/MatchOuest";
 import PatternBreakerLevel from "./rooms/medium/PatternBreaker";
 import ShadowGameLevel from "./rooms/easy/ShadowShape";
+import WordleGame from "./rooms/hard/WordleClone";
+import MazeEscapeLevel from "./rooms/medium/MazeEscape";
+import FlappyBirdLevel from "./rooms/hard/FlappyBird";
+import OutputPredictorLevel from "./rooms/medium/OutputPredictor";
 
 const routes = [
   { path: "/", element: <Home />},
@@ -13,8 +17,12 @@ const routes = [
   { path: "/signup", element: <Signup />},
   { path: "/level/find-object", element: <FindObjectGame />},
   { path: "/level/match-quest", element: <MatchQuestGame />},
-  {path: "/level/pattern-breaker",element:<PatternBreakerLevel/>},
-  {path: "/level/shadow-shape" , element:<ShadowGameLevel/>}
+  {path: "/level/shadow-shape" , element:<ShadowGameLevel/>},
+  { path: "/level/pattern-breaker",element:<PatternBreakerLevel/>},
+  { path: "/level/woordle" , element: <WordleGame />},
+  { path: "/level/maze-escape", element: <MazeEscapeLevel />},
+  { path: "/level/flappy-bird", element: <FlappyBirdLevel />},
+  {path:"/level/output-predictor",element:<OutputPredictorLevel/>}
 ];
 
 const router = createBrowserRouter(routes);
