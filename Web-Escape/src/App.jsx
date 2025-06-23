@@ -10,6 +10,7 @@ import WordleGame from "./rooms/hard/WordleClone";
 import MazeEscapeLevel from "./rooms/medium/MazeEscape";
 import FlappyBirdLevel from "./rooms/hard/FlappyBird";
 import OutputPredictorLevel from "./rooms/medium/OutputPredictor";
+import GuessLiarGame from "./rooms/medium/GuessTheLiar";
 
 const routes = [
   { path: "/", element: <Home />},
@@ -22,7 +23,8 @@ const routes = [
   { path: "/level/woordle" , element: <WordleGame />},
   { path: "/level/maze-escape", element: <MazeEscapeLevel />},
   { path: "/level/flappy-bird", element: <FlappyBirdLevel />},
-  {path:"/level/output-predictor",element:<OutputPredictorLevel/>}
+  {path:"/level/output-predictor",element:<OutputPredictorLevel/>},
+  {path:"/level/guess-liar",element:<GuessLiarGame/>}
 ];
 
 const router = createBrowserRouter(routes);
