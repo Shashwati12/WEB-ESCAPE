@@ -3,7 +3,7 @@ import { create } from 'zustand';
 
 const useGameStore = create((set, get) => ({
   // Current level
-  currentLevel: 0,
+  currentLevel: 1,
 
   // Completion status of each level
   levelStatus: Array(10).fill(false), // true = completed

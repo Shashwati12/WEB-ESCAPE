@@ -1,22 +1,31 @@
-
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
+import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 
 export default function PatternBreakerLevel() {
+  const { id } = useParams();
+  const level = parseInt(id, 10);
+
   const [levelData, setLevelData] = useState(null);
   const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [finished, setFinished] = useState(false);
-  
-  const { currentLevel, completeLevel, updateScore } = useGameStore();
-   
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false);
+
+  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  useEffect(() => {
+    setCurrentLevel(level);
+  }, [level]);
+
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/v1/level/${5}`,
+          `http://localhost:3000/api/v1/level/${level}`,
           { withCredentials: true }
         );
         setLevelData(response.data);
@@ -27,7 +36,7 @@ export default function PatternBreakerLevel() {
     };
 
     fetchLevelData();
-  }, []);
+  }, [level]);
 
   const handleSubmit = async () => {
     if (!userAnswer.trim()) return;
@@ -36,7 +45,7 @@ export default function PatternBreakerLevel() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/v1/level/${5}/submit`,
+        `http://localhost:3000/api/v1/level/${level}/submit`,
         { answer: userAnswer },
         { withCredentials: true }
       );
@@ -45,8 +54,9 @@ export default function PatternBreakerLevel() {
       if (correct) {
         setFeedback("✅ Correct!");
         setFinished(true);
-        completeLevel(currentLevel);
+        completeLevel(level);
         updateScore(10);
+        setTimeout(() => setShowCompleteScreen(true), 1500);
       } else {
         setFeedback("❌ Incorrect! Try again.");
       }
@@ -57,6 +67,8 @@ export default function PatternBreakerLevel() {
 
     setIsSubmitting(false);
   };
+
+  if (showCompleteScreen) return <LevelCompleteScreen />;
 
   if (!levelData) return <div className="text-white">Loading...</div>;
 

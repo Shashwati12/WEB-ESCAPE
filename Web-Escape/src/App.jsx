@@ -2,29 +2,13 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
 import Home from "./pages/Home";
-import FindObjectGame from "./rooms/easy/FindObjectGame";
-import MatchQuestGame from "./rooms/easy/MatchOuest";
-import PatternBreakerLevel from "./rooms/medium/PatternBreaker";
-import ShadowGameLevel from "./rooms/easy/ShadowShape";
-import WordleGame from "./rooms/hard/WordleClone";
-import MazeEscapeLevel from "./rooms/medium/MazeEscape";
-import FlappyBirdLevel from "./rooms/hard/FlappyBird";
-import OutputPredictorLevel from "./rooms/medium/OutputPredictor";
-import GuessLiarGame from "./rooms/medium/GuessTheLiar";
+import LevelRouter from "./components/LevelRouter";
 
 const routes = [
-  { path: "/", element: <Home />},
-  { path: "/login", element: <Login />},
-  { path: "/signup", element: <Signup />},
-  { path: "/level/find-object", element: <FindObjectGame />},
-  { path: "/level/match-quest", element: <MatchQuestGame />},
-  {path: "/level/shadow-shape" , element:<ShadowGameLevel/>},
-  { path: "/level/pattern-breaker",element:<PatternBreakerLevel/>},
-  { path: "/level/woordle" , element: <WordleGame />},
-  { path: "/level/maze-escape", element: <MazeEscapeLevel />},
-  { path: "/level/flappy-bird", element: <FlappyBirdLevel />},
-  {path:"/level/output-predictor",element:<OutputPredictorLevel/>},
-  {path:"/level/guess-liar",element:<GuessLiarGame/>}
+  { path: "/", element: <Home /> },
+  { path: "/login", element: <Login /> },
+  { path: "/signup", element: <Signup /> },
+  { path: "/level/:id", element: <LevelRouter /> },
 ];
 
 const router = createBrowserRouter(routes);

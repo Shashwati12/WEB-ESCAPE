@@ -1,32 +1,40 @@
-
-
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
+import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
 
 export default function ShadowShapeLevel() {
+  const { id } = useParams();
+  const level = parseInt(id, 10); 
+
   const [levelData, setLevelData] = useState(null);
   const [selected, setSelected] = useState(null);
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false);
 
-  const { currentLevel, completeLevel, updateScore } = useGameStore();
+  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  useEffect(() => {
+    setCurrentLevel(level); 
+  }, [level]);
 
   useEffect(() => {
     const fetchPuzzle = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/v1/level/${3}`, {
+        const response = await axios.get(`http://localhost:3000/api/v1/level/${level}`, {
           withCredentials: true,
         });
-        setLevelData(response.data); 
+        setLevelData(response.data);
       } catch (err) {
         console.error("Error loading puzzle:", err);
         setFeedback("⚠️ Failed to load puzzle.");
       }
     };
     fetchPuzzle();
-  }, []);
+  }, [level]);
 
   const handleSubmit = async () => {
     if (!selected || isSubmitting) return;
@@ -36,7 +44,7 @@ export default function ShadowShapeLevel() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/v1/level/${3}/submit`,
+        `http://localhost:3000/api/v1/level/${level}/submit`,
         { answer: selected },
         { withCredentials: true }
       );
@@ -44,9 +52,10 @@ export default function ShadowShapeLevel() {
       const correct = response.data.message === "Correct answer";
       if (correct) {
         setFeedback("✅ Correct!");
-        completeLevel(currentLevel);
+        completeLevel(level);
         updateScore(10);
         setFinished(true);
+        setTimeout(() => setShowCompleteScreen(true), 1500);
       } else {
         setFeedback("❌ Incorrect! Try again.");
       }
@@ -58,7 +67,11 @@ export default function ShadowShapeLevel() {
     setIsSubmitting(false);
   };
 
-  if (!levelData) return <div className="text-white text-center mt-10">Loading...</div>;
+  if (showCompleteScreen) return <LevelCompleteScreen />;
+
+  if (!levelData || !levelData.data || !Array.isArray(levelData.data.options)) {
+    return <div className="text-black text-center mt-10">Loading or invalid data...</div>;
+  }
 
   const currentPuzzle = levelData.data;
 

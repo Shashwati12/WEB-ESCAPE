@@ -1,21 +1,31 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
+import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 
 export default function OutputPredictorLevel() {
+  const { id } = useParams();
+  const level = parseInt(id, 10); 
+
   const [levelData, setLevelData] = useState(null);
   const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false);
 
-  const { currentLevel, completeLevel, updateScore } = useGameStore();
+  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  useEffect(() => {
+    setCurrentLevel(level); 
+  }, [level]);
 
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/v1/level/${6}`, // Replace with dynamic ID if needed
+          `http://localhost:3000/api/v1/level/${level}`,
           { withCredentials: true }
         );
         setLevelData(response.data);
@@ -26,7 +36,7 @@ export default function OutputPredictorLevel() {
     };
 
     fetchLevelData();
-  }, []);
+  }, [level]);
 
   const handleSubmit = async () => {
     if (!userAnswer.trim()) return;
@@ -35,7 +45,7 @@ export default function OutputPredictorLevel() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/api/v1/level/${6}/submit`,
+        `http://localhost:3000/api/v1/level/${level}/submit`,
         { answer: userAnswer },
         { withCredentials: true }
       );
@@ -44,8 +54,9 @@ export default function OutputPredictorLevel() {
       if (correct) {
         setFeedback("✅ Correct!");
         setFinished(true);
-        completeLevel(currentLevel);
+        completeLevel(level);
         updateScore(10);
+        setTimeout(() => setShowCompleteScreen(true), 1500);
       } else {
         setFeedback("❌ Incorrect! Try again.");
       }
@@ -57,7 +68,13 @@ export default function OutputPredictorLevel() {
     setIsSubmitting(false);
   };
 
-  if (!levelData) return <div className="text-white">Loading...</div>;
+  // ✅ Handle level completion screen
+  if (showCompleteScreen) return <LevelCompleteScreen />;
+
+  // ✅ Defensive check
+  if (!levelData || typeof levelData.question !== "string") {
+    return <div className="text-white text-center mt-10">Loading or invalid data...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">

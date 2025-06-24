@@ -1,12 +1,15 @@
-// FlappyBirdLevel.jsx
 import React, { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom'; 
 import birdImg from '../../assets/image.png';
 import birdFlapImg from '../../assets/image.png';
 import bgImg from '../../assets/background-img.png';
 import useGameStore from '../../state/gameStore';
+import LevelCompleteScreen from '../../components/LevelCompleteScreen'; 
 import axios from 'axios';
 
 const FlappyBirdLevel = () => {
+  const { id } = useParams(); 
+  const level = parseInt(id, 10); 
   const [gameState, setGameState] = useState('Start');
   const [score, setScore] = useState(0);
   const [birdTop, setBirdTop] = useState((40 * window.innerHeight) / 100);
@@ -14,6 +17,7 @@ const FlappyBirdLevel = () => {
   const [pipes, setPipes] = useState([]);
   const [frameCount, setFrameCount] = useState(0);
   const [levelCompleted, setLevelCompleted] = useState(false);
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false); 
 
   const moveSpeed = 2.8;
   const gravity = 0.18;
@@ -25,12 +29,16 @@ const FlappyBirdLevel = () => {
   const backgroundRef = useRef();
   const [birdSrc, setBirdSrc] = useState(birdImg);
 
-  const { currentLevel, completeLevel, updateScore } = useGameStore();
+  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  useEffect(() => {
+    setCurrentLevel(level); 
+  }, [level]);
 
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
-        await axios.get(`http://localhost:3000/api/v1/level/${9}`, {
+        await axios.get(`http://localhost:3000/api/v1/level/${level}`, {
           withCredentials: true,
         });
       } catch (err) {
@@ -38,7 +46,7 @@ const FlappyBirdLevel = () => {
       }
     };
     fetchLevelData();
-  }, [currentLevel]);
+  }, [level]);
 
   const resetGame = () => {
     setGameState('Start');
@@ -48,6 +56,7 @@ const FlappyBirdLevel = () => {
     setPipes([]);
     setFrameCount(0);
     setLevelCompleted(false);
+    setShowCompleteScreen(false);
   };
 
   useEffect(() => {
@@ -148,17 +157,20 @@ const FlappyBirdLevel = () => {
 
     if (score >= 20 && !levelCompleted) {
       setLevelCompleted(true);
-      completeLevel(currentLevel);
+      completeLevel(level);
       updateScore(15);
-      axios.post(`http://localhost:3000/api/v1/level/${9}/submit`, {
+      axios.post(`http://localhost:3000/api/v1/level/${level}/submit`, {
         score: score
       }, { withCredentials: true }).catch(console.error);
+      setTimeout(() => setShowCompleteScreen(true), 1500); 
     }
   };
 
   const endGame = () => {
     setGameState('End');
   };
+
+  if (showCompleteScreen) return <LevelCompleteScreen />; 
 
   return (
     <div
@@ -226,7 +238,7 @@ const FlappyBirdLevel = () => {
         </div>
       )}
 
-      {levelCompleted && (
+      {levelCompleted && !showCompleteScreen && (
         <div className="absolute inset-0 flex items-center justify-center z-50">
           <div className="bg-black/60 backdrop-blur-md text-green-400 text-4xl font-extrabold p-8 rounded-xl">
             ✅ Level Completed!
