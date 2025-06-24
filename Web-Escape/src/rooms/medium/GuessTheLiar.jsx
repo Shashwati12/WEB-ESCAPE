@@ -1,26 +1,38 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"; 
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
+import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
 
 export default function GuessLiarGame() {
+  const { id } = useParams(); 
+  const level = parseInt(id, 10);
+
   const [levelData, setLevelData] = useState(null);
   const [selected, setSelected] = useState(null);
   const [feedback, setFeedback] = useState("");
-  const { currentLevel, completeLevel, updateScore } = useGameStore();
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false); 
+
+  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  useEffect(() => {
+    setCurrentLevel(level); 
+  }, [level]);
 
   useEffect(() => {
     const fetchLevel = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/v1/level/7`, {
+        const res = await axios.get(`http://localhost:3000/api/v1/level/${level}`, {
           withCredentials: true,
         });
         setLevelData(res.data);
       } catch (err) {
         console.error("Failed to fetch level data", err);
+        setFeedback("⚠️ Failed to load level.");
       }
     };
     fetchLevel();
-  }, []);
+  }, [level]);
 
   const handleGuess = async (character) => {
     if (selected) return;
@@ -28,24 +40,32 @@ export default function GuessLiarGame() {
 
     try {
       const res = await axios.post(
-        `http://localhost:3000/api/v1/level/7/submit`,
+        `http://localhost:3000/api/v1/level/${level}/submit`,
         { answer: character },
         { withCredentials: true }
       );
 
       if (res.data.success) {
         setFeedback("✅ Correct! You found the liar.");
-        completeLevel(currentLevel);
+        completeLevel(level);
         updateScore(10);
+        setTimeout(() => setShowCompleteScreen(true), 1500); 
       } else {
         setFeedback("❌ Wrong! That wasn't the liar.");
       }
     } catch (err) {
       console.error("Answer submission error", err);
+      setFeedback("⚠️ Submission failed.");
     }
   };
 
-  if (!levelData) return <div className="text-white">Loading...</div>;
+  // ✅ Success screen
+  if (showCompleteScreen) return <LevelCompleteScreen />;
+
+  // ✅ Defensive load check
+  if (!levelData || !levelData.data?.statements) {
+    return <div className="text-white text-center mt-10">Loading or invalid data...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center p-4">

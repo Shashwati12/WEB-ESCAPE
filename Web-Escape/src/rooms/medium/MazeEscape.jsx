@@ -1,27 +1,42 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"; 
 import axios from "axios";
+import useGameStore from "../../state/gameStore";
+import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
 
 const MazeEscapeLevel = () => {
+  const { id } = useParams();
+  const level = parseInt(id, 10); 
+
   const [maze, setMaze] = useState([]);
   const [player, setPlayer] = useState({ x: 0, y: 0 });
   const [exit, setExit] = useState({ x: 0, y: 0 });
   const [message, setMessage] = useState("");
   const [gridSize, setGridSize] = useState(20);
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false);
+
+  const { setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  useEffect(() => {
+    setCurrentLevel(level);
+  }, [level]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/v1/level/4", { withCredentials: true })
+      .get(`http://localhost:3000/api/v1/level/${level}`, { withCredentials: true })
       .then((res) => {
         setMaze(res.data.data.maze);
         setPlayer(res.data.data.start);
         setExit(res.data.data.exit);
-        setGridSize(res.data.data.maze[0].length);
+        if (res.data.data.maze?.[0]) {
+          setGridSize(res.data.data.maze[0].length);
+        }
       })
       .catch((err) => {
         console.error("Failed to load maze", err);
         setMessage("⚠️ Failed to load maze data.");
       });
-  }, []);
+  }, [level]);
 
   const movePlayer = async (dx, dy) => {
     const { x, y } = player;
@@ -30,7 +45,7 @@ const MazeEscapeLevel = () => {
 
     if (
       newX < 0 || newY < 0 ||
-      newX >= maze[0].length || newY >= maze.length
+      newX >= maze[0]?.length || newY >= maze.length
     ) return;
 
     const currentCell = maze[y][x];
@@ -50,12 +65,19 @@ const MazeEscapeLevel = () => {
     if (newX === exit.x && newY === exit.y) {
       try {
         const res = await axios.post(
-          "http://localhost:3000/api/v1/level/4/submit",
+          `http://localhost:3000/api/v1/level/${level}/submit`,
           { x: newX, y: newY },
           { withCredentials: true }
         );
-        setMessage(res.data.success ? "🎉 You solved the maze!" : "🚫 Wrong solution.");
-      }catch (err) {
+        if (res.data.success) {
+          setMessage("🎉 You solved the maze!");
+          completeLevel(level);
+          updateScore(10);
+          setTimeout(() => setShowCompleteScreen(true), 1500);
+        } else {
+          setMessage("🚫 Wrong solution.");
+        }
+      } catch (err) {
         console.error("Submit error:", err?.message || err);
         setMessage("⚠️ Error submitting answer.");
       }
@@ -73,6 +95,8 @@ const MazeEscapeLevel = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [player, maze]);
+
+  if (showCompleteScreen) return <LevelCompleteScreen />; 
 
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white min-h-screen">

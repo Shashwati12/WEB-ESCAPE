@@ -1,30 +1,46 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
+import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 
 const WORD_LENGTH = 5;
 const MAX_ATTEMPTS = 6;
 
 export default function WordleGame() {
+  const { id } = useParams();
+  const level = parseInt(id, 10);
+
   const [levelData, setLevelData] = useState(null);
   const [grid, setGrid] = useState([]);
   const [feedbackGrid, setFeedbackGrid] = useState([]);
   const [currentGuess, setCurrentGuess] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [gameOverMessage, setGameOverMessage] = useState("");
-  const { currentLevel, completeLevel, updateScore } = useGameStore();
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false); 
+
+  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  useEffect(() => {
+    setCurrentLevel(level); 
+  }, [level]);
 
   useEffect(() => {
     const fetchLevel = async () => {
-      const res = await axios.get(`http://localhost:3000/api/v1/level/${8}`, {
-        withCredentials: true,
-      });
-      setLevelData(res.data);
-      setGrid(Array(MAX_ATTEMPTS).fill().map(() => Array(WORD_LENGTH).fill("")));
-      setFeedbackGrid(Array(MAX_ATTEMPTS).fill().map(() => Array(WORD_LENGTH).fill("")));
+      try {
+        const res = await axios.get(`http://localhost:3000/api/v1/level/${level}`, {
+          withCredentials: true,
+        });
+        setLevelData(res.data);
+        setGrid(Array(MAX_ATTEMPTS).fill().map(() => Array(WORD_LENGTH).fill("")));
+        setFeedbackGrid(Array(MAX_ATTEMPTS).fill().map(() => Array(WORD_LENGTH).fill("")));
+      } catch (err) {
+        console.error("Failed to fetch level", err);
+        setGameOverMessage("⚠️ Failed to load level.");
+      }
     };
     fetchLevel();
-  }, [currentLevel]);
+  }, [level]);
 
   useEffect(() => {
     const onKey = async (e) => {
@@ -38,7 +54,7 @@ export default function WordleGame() {
 
         try {
           const res = await axios.post(
-            `http://localhost:3000/api/v1/level/${8}/submit`,
+            `http://localhost:3000/api/v1/level/${level}/submit`,
             { answer: currentGuess },
             { withCredentials: true }
           );
@@ -52,9 +68,10 @@ export default function WordleGame() {
           setFeedbackGrid(newFB);
 
           if (res.data.success) {
-            completeLevel(currentLevel);
+            completeLevel(level);
             updateScore(10);
             setGameOverMessage("🎉 You guessed it!");
+            setTimeout(() => setShowCompleteScreen(true), 1500); 
           } else if (attempt + 1 >= MAX_ATTEMPTS) {
             setGameOverMessage("❌ Out of guesses!");
           }
@@ -81,7 +98,13 @@ export default function WordleGame() {
     setGameOverMessage("");
   };
 
-  if (!levelData) return <div className="text-white">Loading…</div>;
+  // ✅ Success screen
+  if (showCompleteScreen) return <LevelCompleteScreen />;
+
+  // ✅ Defensive check
+  if (!levelData || !levelData.question) {
+    return <div className="text-white text-center mt-10">Loading or invalid data...</div>;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
