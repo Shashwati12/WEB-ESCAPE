@@ -13,7 +13,7 @@ export default function GuessLiarGame() {
   const [feedback, setFeedback] = useState("");
   const [showCompleteScreen, setShowCompleteScreen] = useState(false); 
 
-  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+  const { setCurrentLevel, completeLevel, updateScore } = useGameStore();
 
   useEffect(() => {
     setCurrentLevel(level); 
