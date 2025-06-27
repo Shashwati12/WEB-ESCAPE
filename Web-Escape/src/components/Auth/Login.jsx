@@ -50,8 +50,7 @@ try{
     });
     if(res.data.success){
       toast.success("Login successful")
-        navigate("/");
-
+      navigate("/dashboard");
     }
  
 
