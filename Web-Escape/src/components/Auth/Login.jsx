@@ -35,7 +35,7 @@ try{
    
     });
     if(res.data.success){
-        navigate("/");
+        navigate("/dashboard");
 
     }
    
