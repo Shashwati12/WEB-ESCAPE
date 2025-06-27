@@ -3,6 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 import axios from "axios";
 import { USER_API_POINT } from "../../utils/Apicall";
+import {toast } from "sonner";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  username: z.string().min(4, "Username must be at least 4 characters"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
 
 function Signup() {
   const navigate = useNavigate();
@@ -12,7 +21,7 @@ function Signup() {
     password: "",
   });
 
-  const [errorMsg, setErrorMsg] = useState("");
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -22,7 +31,15 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
+    
+    const result = registerSchema.safeParse(formData);
+  if (!result.success) {
+    // Extract the first validation error message
+    const errorMessage = result.error.issues[0]?.message || "Invalid input";
+    toast.error(errorMessage);
+    return;
+  }
+   
 
     try {
       const res = await axios.post(`${USER_API_POINT}/register`, formData, {
@@ -31,16 +48,17 @@ function Signup() {
         },
       });
       if (res.data.success) {
+        toast.success("registered successfully");
         navigate("/login");
       }
     } catch (error) {
       if (error.response) {
-        setErrorMsg(error.response.data.message);
+        toast.error(error.response.data.message);
       } else {
-        setErrorMsg("An unexpected error occurred");
+        toast.error("An unexpected error occurred");
       }
     }
-    // redirect to login after signup
+    
   };
 
   return (
@@ -95,9 +113,7 @@ function Signup() {
             >
               Sign Up
             </button>
-            {errorMsg && (
-              <p className="text-red-600 text-center mt-2">{errorMsg}</p>
-            )}
+            
           </form>
           <p className="mt-4 text-sm text-center">
             Already have an account?{" "}
@@ -115,3 +131,5 @@ function Signup() {
 }
 
 export default Signup;
+
+

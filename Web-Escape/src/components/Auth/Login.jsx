@@ -1,9 +1,16 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import Navbar from "../Navbar";
-
+import { toast } from "sonner";
 import axios from "axios";
 import {USER_API_POINT} from "../../utils/Apicall";
+import { z } from "zod";
+
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 function Login(){
     const navigate= useNavigate();
@@ -25,6 +32,13 @@ const handleSubmit = async(e)=>{
     console.log("login Data", formData);
 
 
+     const result = loginSchema.safeParse(formData);
+    if (!result.success) {
+      const errorMessage = result.error.issues[0]?.message || "Invalid input";
+      toast.error(errorMessage);
+      return;
+    }
+
 try{
     const res= await axios.post(`${USER_API_POINT}/login`,formData,{
          headers:{
@@ -35,12 +49,17 @@ try{
    
     });
     if(res.data.success){
-        navigate("/dashboard");
-
+      toast.success("Login successful")
+      navigate("/dashboard");
     }
-   
+ 
+
 }catch(error){
-    console.log(error);
+  if(error.response){
+    toast.error(error.response.data.message || "Login Failed");
+  }else{
+    toast.error("Something went wrong");
+  }
 }
 }
 
