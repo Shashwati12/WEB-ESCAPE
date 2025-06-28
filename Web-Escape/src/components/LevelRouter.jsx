@@ -8,21 +8,29 @@ import MazeEscapeLevel from "../rooms/medium/MazeEscape";
 import OutputPredictorLevel from "../rooms/medium/OutputPredictor";
 import WordleGame from "../rooms/hard/WordleClone";
 import FlappyBirdLevel from "../rooms/hard/FlappyBird";
+import GameMenu from "./GameMenu";
 
 export default function LevelRouter() {
   const { id } = useParams();
   const level = parseInt(id, 10);
 
+  const withMenu = (Component) => (
+    <div className="relative w-full h-screen">
+      <GameMenu />
+      {Component}
+    </div>
+  );
+
   const levelComponents = {
-    1: <FindObjectGame />,
-    2: <MatchQuestGame />,
-    3: <ShadowGameLevel />,
-    4: <MazeEscapeLevel />,
-    5: <PatternBreakerLevel/>,
-    6: <OutputPredictorLevel/>,
-    7: <GuessLiarGame />,
-    8: <WordleGame />,
-    9: <FlappyBirdLevel />,
+    1: withMenu(<FindObjectGame />),
+    2: withMenu(<MatchQuestGame />),
+    3: withMenu(<ShadowGameLevel />),
+    4: withMenu(<MazeEscapeLevel />),
+    5: withMenu(<PatternBreakerLevel />),
+    6: withMenu(<OutputPredictorLevel />),
+    7: withMenu(<GuessLiarGame />),
+    8: withMenu(<WordleGame />),
+    9: withMenu(<FlappyBirdLevel />),
     10: (
       <div className="text-white text-center mt-40 text-3xl">
         🎉 You Escaped All Rooms! <br />
