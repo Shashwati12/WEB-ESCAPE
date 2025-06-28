@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import {useNavigate} from "react-router-dom";
 import axios from 'axios';
 
 const TOTAL_LEVELS = 10;
@@ -6,6 +7,7 @@ const TOTAL_LEVELS = 10;
 const Dashboard = () => {
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -41,7 +43,7 @@ const Dashboard = () => {
       });
 
       setProgress(response.data);
-      window.location.href = `/level/1`;
+      navigate(`/level/1`);
     } catch (error) {
       console.error('Failed to start new game:', error);
     }
@@ -49,7 +51,7 @@ const Dashboard = () => {
 
   const handleResumeGame = () => {
     const level =  progress?.levelStatus?.filter(Boolean).length + 1|| 0;
-    window.location.href = `/level/${level}`;
+    navigate(`/level/${level}`);
   };
 
   const levelsCompleted = progress?.levelStatus?.filter(Boolean).length || 0;
