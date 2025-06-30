@@ -11,16 +11,7 @@ const GameMenu = () => {
 
   const handleStartNewGame = async () => {
     try {
-      const resetData = {
-        currentLevel: 0,
-        levelStatus: Array(TOTAL_LEVELS).fill(false),
-        score: 0,
-        timer: 0,
-        assignedLevels: {},
-        shuffledCards: {},
-      };
-
-      await axios.put('http://localhost:3000/api/v1/game/progress', resetData, {
+      await axios.post('http://localhost:3000/api/v1/game/progress/reset', {} ,{
         withCredentials: true,
       });
 
@@ -35,16 +26,7 @@ const GameMenu = () => {
     if (!confirmQuit) return;
 
     try {
-      const resetData = {
-        currentLevel: 0,
-        levelStatus: Array(TOTAL_LEVELS).fill(false),
-        score: 0,
-        timer: 0,
-        assignedLevels: {},
-        shuffledCards: {},
-      };
-
-      await axios.put('http://localhost:3000/api/v1/game/progress', resetData, {
+      await axios.post('http://localhost:3000/api/v1/game/progress/reset', {} , {
         withCredentials: true,
       });
 

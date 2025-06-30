@@ -15,7 +15,6 @@ const Dashboard = () => {
         const response = await axios.get('http://localhost:3000/api/v1/game/progress', {
           withCredentials: true,
         });
-        console.log(response.data)
         setProgress(response.data);
       } catch (error) {
         console.error('Failed to fetch progress:', error);
@@ -29,16 +28,7 @@ const Dashboard = () => {
 
   const handleStartNewGame = async () => {
     try {
-      const resetData = {
-        currentLevel: 0,
-        levelStatus: Array(TOTAL_LEVELS).fill(false),
-        score: 0,
-        timer: 0,
-        assignedLevels: {},
-        shuffledCards: {},
-      };
-
-      const response = await axios.put('http://localhost:3000/api/v1/game/progress', resetData, {
+      const response = await axios.post('http://localhost:3000/api/v1/game/progress/reset',{},{
         withCredentials: true, 
       });
 
