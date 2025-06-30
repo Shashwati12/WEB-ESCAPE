@@ -17,14 +17,21 @@ export const getOrCreateProgress = async (req, res) => {
   }
 };
 
-export const updateProgress = async (req, res) => {
+export const resetProgress = async (req, res) => {
   try {
     const userId = req.id;
-    const updateData = req.body;
+
+    const resetData = {
+      currentLevel: 0,
+      levelStatus: Array(10).fill(false),
+      score: 0,
+      timer: 0,
+      assignedLevels: {},
+    };
 
     const progress = await GameProgress.findOneAndUpdate(
       { user: userId },
-      { $set: updateData },
+      { $set: resetData },
       { new: true, runValidators: true }
     );
 
@@ -32,10 +39,10 @@ export const updateProgress = async (req, res) => {
       return res.status(404).json({ error: 'Progress not found' });
     }
 
-    res.status(200).json(progress);
+    res.status(200).json({ message: 'Progress reset successfully', progress });
   } catch (error) {
-    console.error('Error in updateProgress:', error);
-    res.status(500).json({ error: 'Failed to update game progress' });
+    console.error('Error in resetProgress:', error);
+    res.status(500).json({ error: 'Failed to reset game progress' });
   }
 };
 
