@@ -46,3 +46,29 @@ export const resetProgress = async (req, res) => {
   }
 };
 
+export const updateTime = async (req, res) => {
+  try {
+    const userId = req.id;
+    const { timer } = req.body;
+
+    if (typeof timer !== 'number' || timer < 0) {
+      return res.status(400).json({ error: 'Invalid time value' });
+    }
+
+    const progress = await GameProgress.findOneAndUpdate(
+      { user: userId },
+      { $set: { timer } },
+      { new: true }
+    );
+
+    if (!progress) {
+      return res.status(404).json({ error: 'Progress not found' });
+    }
+
+    res.status(200).json({ message: 'Time updated successfully', progress });
+  } catch (error) {
+    console.error('Error updating time:', error);
+    res.status(500).json({ error: 'Failed to update time' });
+  }
+};
+
