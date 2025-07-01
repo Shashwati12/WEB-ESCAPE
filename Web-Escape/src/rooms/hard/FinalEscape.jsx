@@ -1,0 +1,160 @@
+import { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
+import useGameStore from '../../state/gameStore';
+
+const TILE_SIZE = 32;
+const ENEMY_SPEED = 500;
+const GHOST_COLORS = ['red', 'blue', 'orange', 'pink'];
+
+export default function PacmanMazeGame() {
+  const [maze, setMaze] = useState([]);
+  const [playerPos, setPlayerPos] = useState({ x: 1, y: 1 });
+  const [enemies, setEnemies] = useState([
+    { x: 23, y: 1, color: 'red' },
+    { x: 23, y: 13, color: 'blue' },
+    { x: 1, y: 13, color: 'orange' },
+    { x: 12, y: 7, color: 'pink' }
+  ]);
+  const [dotsLeft, setDotsLeft] = useState(0);
+  const [status, setStatus] = useState("loading");
+  const { currentLevel, completeLevel, updateScore } = useGameStore();
+
+  const dotSound = useRef(null);
+  const winSound = useRef(null);
+  const loseSound = useRef(null);
+
+  useEffect(() => {
+    dotSound.current = new Audio('/sounds/dot.mp3');
+    winSound.current = new Audio('/sounds/win.mp3');
+    loseSound.current = new Audio('/sounds/caught.wav');
+  }, []);
+
+  useEffect(() => {
+    const fetchMaze = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/api/v1/level/10', {
+          withCredentials: true
+        });
+        const levelMaze = res.data.data.maze;
+        setMaze(levelMaze);
+        let count = 0;
+        levelMaze.forEach(row => row.forEach(cell => { if (cell === '.') count++; }));
+        setDotsLeft(count);
+        setStatus("playing");
+      } catch (err) {
+        console.error("Failed to fetch level data", err);
+      }
+    };
+    fetchMaze();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (status !== "playing") return;
+      const { x, y } = playerPos;
+      let newX = x;
+      let newY = y;
+      if (e.key === 'ArrowUp') newY--;
+      else if (e.key === 'ArrowDown') newY++;
+      else if (e.key === 'ArrowLeft') newX--;
+      else if (e.key === 'ArrowRight') newX++;
+      if (maze[newY]?.[newX] === '#' || !maze[newY] || !maze[newY][newX]) return;
+
+      const newMaze = maze.map(row => [...row]);
+      if (newMaze[newY][newX] === '.') {
+        newMaze[newY][newX] = ' ';
+        setDotsLeft(prev => prev - 1);
+        dotSound.current?.play();
+      }
+      setPlayerPos({ x: newX, y: newY });
+      setMaze(newMaze);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [playerPos, maze, status]);
+
+  useEffect(() => {
+    if (status !== "playing") return;
+    const interval = setInterval(() => {
+      setEnemies(prev => prev.map(({ x, y, color }) => {
+        const directions = [
+          { x: 0, y: -1 },
+          { x: 0, y: 1 },
+          { x: -1, y: 0 },
+          { x: 1, y: 0 },
+        ];
+        const valid = directions.filter(d => maze[y + d.y]?.[x + d.x] !== '#');
+        const move = valid[Math.floor(Math.random() * valid.length)] || { x: 0, y: 0 };
+        return { x: x + move.x, y: y + move.y, color };
+      }));
+    }, ENEMY_SPEED);
+    return () => clearInterval(interval);
+  }, [maze, status]);
+
+  useEffect(() => {
+    enemies.forEach(enemy => {
+      if (enemy.x === playerPos.x && enemy.y === playerPos.y && status === "playing") {
+        setStatus("lost");
+        loseSound.current?.play();
+        axios.post(`http://localhost:3000/api/v1/level/10/submit`, {
+          answer: "caught",
+        }, { withCredentials: true });
+      }
+    });
+  }, [enemies, playerPos]);
+
+  useEffect(() => {
+    if (dotsLeft === 0 && status === "playing") {
+      setStatus("won");
+      winSound.current?.play();
+      axios.post(`http://localhost:3000/api/v1/level/10/submit`, {
+        answer: 'victory',
+      }, { withCredentials: true })
+      .then(res => {
+        if (res.data.success) {
+          completeLevel(currentLevel);
+          updateScore(10);
+        }
+      });
+    }
+  }, [dotsLeft, status]);
+
+  if (status === "loading") return <div className="text-white">Loading...</div>;
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white overflow-auto">
+      <h1 className="text-2xl font-bold mb-4">🟡 Room 10: Final Escape</h1>
+      <div
+        className="relative"
+        style={{ width: `${TILE_SIZE * maze[0].length}px`, height: `${TILE_SIZE * maze.length}px` }}
+      >
+        {maze.map((row, y) =>
+          row.map((cell, x) => {
+            const isPlayer = playerPos.x === x && playerPos.y === y;
+            const enemy = enemies.find(e => e.x === x && e.y === y);
+            return (
+              <div
+                key={`${x}-${y}`}
+                className={`absolute w-8 h-8 flex items-center justify-center text-lg font-bold
+                  ${cell === '#' ? 'bg-gray-800' : 'bg-black'}
+                  ${cell === '.' ? 'after:content-["•"] after:text-yellow-300' : ''}`}
+                style={{ top: y * TILE_SIZE, left: x * TILE_SIZE }}
+              >
+                {isPlayer && <img src="/sprites/pacman.png" alt="Pacman" className="w-full h-full" />}
+                {enemy && <img src={`/sprites/ghost-${enemy.color}.png`} alt="ghost" className="w-fit h-fit" />}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {status === "won" && (
+        <p className="text-green-400 mt-6 text-xl font-bold">🎉 You cleared the maze!</p>
+      )}
+      {status === "lost" && (
+        <p className="text-red-500 mt-6 text-xl font-bold">💀 You were caught!</p>
+      )}
+    </div>
+  );
+}
