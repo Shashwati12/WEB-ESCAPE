@@ -9,6 +9,7 @@ import OutputPredictorLevel from "../rooms/medium/OutputPredictor";
 import WordleGame from "../rooms/hard/WordleClone";
 import FlappyBirdLevel from "../rooms/hard/FlappyBird";
 import GameMenu from "./GameMenu";
+import PacmanMazeGame from "../rooms/hard/FinalEscape";
 
 export default function LevelRouter() {
   const { id } = useParams();
@@ -35,6 +36,9 @@ export default function LevelRouter() {
       <div className="text-white text-center mt-40 text-3xl">
         🎉 You Escaped All Rooms! <br />
         Final level coming soon!
+      </div>,
+      <div>
+        <PacmanMazeGame />
       </div>
     ),
   };
