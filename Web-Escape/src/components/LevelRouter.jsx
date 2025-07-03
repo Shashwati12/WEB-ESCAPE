@@ -37,9 +37,7 @@ export default function LevelRouter() {
         🎉 You Escaped All Rooms! <br />
         Final level coming soon!
       </div>,
-      <div>
-        <PacmanMazeGame />
-      </div>
+        withMenu(<PacmanMazeGame />)
     ),
   };
 

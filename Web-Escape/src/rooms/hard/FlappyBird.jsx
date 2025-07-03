@@ -17,7 +17,8 @@ const FlappyBirdLevel = () => {
   const [pipes, setPipes] = useState([]);
   const [frameCount, setFrameCount] = useState(0);
   const [levelCompleted, setLevelCompleted] = useState(false);
-  const [showCompleteScreen, setShowCompleteScreen] = useState(false); 
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false);
+  const [retrying, setRetrying] = useState(false);  
 
   const moveSpeed = 2.8;
   const gravity = 0.18;
@@ -57,6 +58,23 @@ const FlappyBirdLevel = () => {
     setFrameCount(0);
     setLevelCompleted(false);
     setShowCompleteScreen(false);
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    try {
+      await axios.post(
+        `http://localhost:3000/api/v1/game/level/${level}/retry`,
+        {},
+        { withCredentials: true }
+      );
+      resetGame();
+    } catch (err) {
+      console.error('Retry failed', err);
+      alert('⚠️ Retry failed. Try again later.');
+    } finally {
+      setRetrying(false);
+    }
   };
 
   useEffect(() => {
@@ -229,10 +247,11 @@ const FlappyBirdLevel = () => {
               Your Score: <span className="text-green-600 font-bold">{score}</span>
             </p>
             <button
-              onClick={resetGame}
-              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition"
+              onClick={handleRetry}
+              disabled={retrying}
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition disabled:opacity-50"
             >
-              Restart Game
+              {retrying ? "Retrying..." : "Restart Game"}
             </button>
           </div>
         </div>

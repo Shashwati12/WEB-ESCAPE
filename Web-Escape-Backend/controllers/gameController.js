@@ -7,7 +7,18 @@ export const getOrCreateProgress = async (req, res) => {
     let progress = await GameProgress.findOne({ user: userId });
 
     if (!progress) {
-      progress = await GameProgress.create({ user: userId });
+      progress = await GameProgress.create({ user: userId ,
+        currentLevel: 0,
+        levelStatus: Array(10).fill(false),
+        score: 0,
+        timer: 0,
+        assignedLevels: {},
+        levelAttempts: Array.from({ length: 10 }, (value, index) => ({
+          levelNumber: index + 1,
+          attemptsLeft: 3,
+          retriesUsed: 0
+        }))
+      });
     }
 
     res.status(200).json(progress);
@@ -27,6 +38,11 @@ export const resetProgress = async (req, res) => {
       score: 0,
       timer: 0,
       assignedLevels: {},
+      levelAttempts: Array.from({ length: 10 }, (value, index) => ({
+        levelNumber: index + 1,
+        attemptsLeft: 3,
+        retriesUsed: 0
+      }))
     };
 
     const progress = await GameProgress.findOneAndUpdate(
@@ -71,4 +87,84 @@ export const updateTime = async (req, res) => {
     res.status(500).json({ error: 'Failed to update time' });
   }
 };
+
+export const retryLevel = async (req, res) => {
+  try {
+    const userId = req.id;
+    const level = parseInt(req.params.level);
+
+    const progress = await GameProgress.findOne({ user: userId });
+    if (!progress) {
+      return res.status(404).json({ error: 'Progress not found' });
+    }
+
+    // Find the levelAttempt object
+    const levelData = progress.levelAttempts.find(
+      (lvl) => lvl.levelNumber === level
+    );
+
+    if (!levelData) {
+      return res.status(404).json({ error: 'Level attempt data not found' });
+    }
+
+    if (progress.score < 5) {
+      return res.status(400).json({ error: 'Not enough score to retry' });
+    }
+
+    // Deduct score and reset attempts
+    progress.score -= 5;
+    levelData.attemptsLeft = 3;
+    levelData.retriesUsed += 1;
+
+    await progress.save();
+
+    res.status(200).json({
+      message: 'Retry successful',
+      newAttempts: levelData.attemptsLeft,
+      scoreLeft: progress.score,
+      retriesUsed: levelData.retriesUsed,
+    });
+  } catch (error) {
+    console.error('Error in retryLevel:', error);
+    res.status(500).json({ error: 'Retry failed' });
+  }
+};
+
+export const useAttempt = async (req, res) => {
+  try {
+    const userId = req.id;
+    const level = parseInt(req.params.level);
+
+    const progress = await GameProgress.findOne({ user: userId });
+    if (!progress) {
+      return res.status(404).json({ error: 'Progress not found' });
+    }
+
+    const levelData = progress.levelAttempts.find(
+      (lvl) => lvl.levelNumber === level
+    );
+
+    if (!levelData) {
+      return res.status(404).json({ error: 'Level attempt data not found' });
+    }
+
+    if (levelData.attemptsLeft <= 0) {
+      return res.status(400).json({ error: 'No attempts left' });
+    }
+
+    levelData.attemptsLeft -= 1;
+
+    await progress.save();
+
+    res.status(200).json({
+      message: 'Attempt used',
+      attemptsLeft: levelData.attemptsLeft
+    });
+  } catch (error) {
+    console.error('Error in useAttempt:', error);
+    res.status(500).json({ error: 'Failed to use attempt' });
+  }
+};
+
+
 
