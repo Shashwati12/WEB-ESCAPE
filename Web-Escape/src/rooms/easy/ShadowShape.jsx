@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
 import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
+import useAttempt from "../../hooks/useAttempt";
 
 export default function ShadowShapeLevel() {
   const { id } = useParams();
@@ -16,6 +17,14 @@ export default function ShadowShapeLevel() {
   const [showCompleteScreen, setShowCompleteScreen] = useState(false);
 
   const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  const {
+    attemptsLeft,
+    isLocked,
+    retrying,
+    handleUseAttempt,
+    handleRetry,
+  } = useAttempt(level);
 
   useEffect(() => {
     setCurrentLevel(level); 
@@ -37,7 +46,7 @@ export default function ShadowShapeLevel() {
   }, [level]);
 
   const handleSubmit = async () => {
-    if (!selected || isSubmitting) return;
+    if (!selected || isSubmitting || isLocked) return;
 
     setIsSubmitting(true);
     setFeedback("");
@@ -58,6 +67,7 @@ export default function ShadowShapeLevel() {
         setTimeout(() => setShowCompleteScreen(true), 1500);
       } else {
         setFeedback("❌ Incorrect! Try again.");
+        await handleUseAttempt();
       }
     } catch (err) {
       console.error("Error submitting answer:", err);
@@ -82,6 +92,15 @@ export default function ShadowShapeLevel() {
         {levelData.question}
       </p>
 
+      {attemptsLeft !== null && (
+        <p className="text-yellow-300 mb-2">🧠 Attempts Left: {attemptsLeft}</p>
+      )}
+
+      {isLocked && (
+        <p className="text-red-400 font-semibold text-lg mb-2">❌ No attempts left</p>
+      )}
+
+
       <div className="mb-6">
         <img
           src={`http://localhost:3000/${currentPuzzle.image}`}
@@ -95,9 +114,10 @@ export default function ShadowShapeLevel() {
           <button
             key={idx}
             onClick={() => setSelected(option)}
+            disabled={isLocked}
             className={`px-4 py-2 rounded border ${
               selected === option ? "bg-green-600" : "bg-white text-black"
-            } hover:bg-green-700 transition-all`}
+            } hover:bg-green-700 transition-all disabled:opacity-50`}
           >
             {option}
           </button>
@@ -130,6 +150,16 @@ export default function ShadowShapeLevel() {
         <p className="mt-8 text-3xl font-bold text-green-400">
           🎉 Shadow Solved!
         </p>
+      )}
+
+      {isLocked && (
+        <button
+          onClick={handleRetry}
+          disabled={retrying}
+          className="mt-6 px-6 py-2 bg-yellow-500 text-black font-semibold rounded-lg hover:bg-yellow-600 disabled:opacity-50 transition"
+        >
+          {retrying ? "Retrying..." : "Retry Level (-5 Score)"}
+        </button>
       )}
     </div>
   );

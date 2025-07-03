@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import useGameStore from "../../state/gameStore";
 import axios from "axios";
 import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
+import useAttempt from "../../hooks/useAttempt";
 
 export default function FindObjectGame() {
   const { id } = useParams();
@@ -12,6 +13,14 @@ export default function FindObjectGame() {
   const [found, setFound] = useState(false);
   const [wrongMessage, setWrongMessage] = useState(false);
   const [showCompleteScreen, setShowCompleteScreen] = useState(false);
+
+  const {
+    attemptsLeft,
+    isLocked,
+    retrying,
+    handleUseAttempt,
+    handleRetry,
+  } = useAttempt(level);
 
   const {
     currentLevel,
@@ -41,7 +50,7 @@ export default function FindObjectGame() {
   }, [level]);
 
   const handleClick = async (e) => {
-    if (found) return; 
+    if (found || isLocked) return; 
 
     const rect = e.target.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -65,6 +74,9 @@ export default function FindObjectGame() {
       } else if (response.data.message === "Wrong answer") {
         setWrongMessage(true);
         setTimeout(() => setWrongMessage(false), 2000);
+
+        await handleUseAttempt();
+
       }
 
       console.log(response.data.message);
@@ -80,6 +92,19 @@ export default function FindObjectGame() {
   return (
     <div className="flex flex-col items-center justify-center text-white min-h-screen bg-black p-4">
       <h1 className="text-2xl font-bold mb-4">🔍 {levelData.question}</h1>
+
+      {attemptsLeft !== null && (
+        <p className="mb-2 text-sm text-yellow-300">
+          Attempts Left: {attemptsLeft}
+        </p>
+      )}
+
+      {isLocked && (
+        <div className="text-red-400 font-bold mb-3 text-lg">
+          ❌ No attempts left!
+        </div>
+      )}
+
       <div className="relative">
         <img
           src={`http://localhost:3000/${levelData.data}`}
@@ -89,6 +114,7 @@ export default function FindObjectGame() {
             found ? "border-green-500" : "border-white"
           } cursor-crosshair`}
         />
+
         {found && (
           <div className="absolute inset-0 flex items-center justify-center text-green-400 text-3xl font-bold bg-black/50">
             ✅ Object Found!
@@ -100,6 +126,17 @@ export default function FindObjectGame() {
           </div>
         )}
       </div>
+
+      {isLocked && (
+        <button
+          onClick={handleRetry}
+          className="mt-6 px-6 py-2 bg-yellow-500 text-black font-semibold rounded-lg hover:bg-yellow-600 disabled:opacity-50 transition"
+          disabled={retrying}
+        >
+          Retry Level (-5 Score)
+        </button>
+      )}
+
     </div>
   );
 }

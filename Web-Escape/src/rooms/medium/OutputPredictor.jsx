@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
 import LevelCompleteScreen from "../../components/LevelCompleteScreen";
+import useAttempt from "../../hooks/useAttempt";
 
 export default function OutputPredictorLevel() {
   const { id } = useParams();
@@ -16,6 +17,14 @@ export default function OutputPredictorLevel() {
   const [showCompleteScreen, setShowCompleteScreen] = useState(false);
 
   const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+  const {
+    attemptsLeft,
+    isLocked,
+    retrying,
+    handleUseAttempt,
+    handleRetry,
+  } = useAttempt(level);
 
   useEffect(() => {
     setCurrentLevel(level); 
@@ -39,7 +48,7 @@ export default function OutputPredictorLevel() {
   }, [level]);
 
   const handleSubmit = async () => {
-    if (!userAnswer.trim()) return;
+    if (!userAnswer.trim() || isSubmitting || isLocked) return;
     setIsSubmitting(true);
     setFeedback("");
 
@@ -59,6 +68,7 @@ export default function OutputPredictorLevel() {
         setTimeout(() => setShowCompleteScreen(true), 1500);
       } else {
         setFeedback("❌ Incorrect! Try again.");
+        await handleUseAttempt();
       }
     } catch (error) {
       console.error("Error submitting answer:", error);
@@ -68,10 +78,8 @@ export default function OutputPredictorLevel() {
     setIsSubmitting(false);
   };
 
-  // ✅ Handle level completion screen
   if (showCompleteScreen) return <LevelCompleteScreen />;
 
-  // ✅ Defensive check
   if (!levelData || typeof levelData.question !== "string") {
     return <div className="text-white text-center mt-10">Loading or invalid data...</div>;
   }
@@ -84,6 +92,14 @@ export default function OutputPredictorLevel() {
         {levelData.question}
       </pre>
 
+      {attemptsLeft !== null && (
+        <p className="text-yellow-300 mb-2">🧠 Attempts Left: {attemptsLeft}</p>
+      )}
+
+      {isLocked && (
+        <p className="text-red-400 font-semibold text-lg mb-2">❌ No attempts left</p>
+      )}
+
       {!finished && (
         <div className="flex flex-col items-center gap-4">
           <input
@@ -92,12 +108,12 @@ export default function OutputPredictorLevel() {
             onChange={(e) => setUserAnswer(e.target.value)}
             placeholder="Enter the expected output"
             className="px-4 py-2 rounded text-black w-64 text-center bg-white"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLocked}
           />
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="px-6 py-2 bg-blue-600 rounded hover:bg-blue-700 transition-all"
+            disabled={isSubmitting || isLocked}
+            className="px-6 py-2 bg-blue-600 rounded hover:bg-blue-700 transition-all disabled:opacity-50"
           >
             Submit
           </button>
@@ -123,6 +139,17 @@ export default function OutputPredictorLevel() {
           🎉 Output Predicted!
         </p>
       )}
+
+      {isLocked && (
+        <button
+          onClick={handleRetry}
+          disabled={retrying}
+          className="mt-6 px-6 py-2 bg-yellow-500 text-black font-semibold rounded-lg hover:bg-yellow-600 disabled:opacity-50 transition"
+        >
+          {retrying ? "Retrying..." : "Retry Level (-5 Score)"}
+        </button>
+      )}
+      
     </div>
   );
 }

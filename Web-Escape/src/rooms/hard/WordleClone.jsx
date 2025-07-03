@@ -17,7 +17,8 @@ export default function WordleGame() {
   const [currentGuess, setCurrentGuess] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [gameOverMessage, setGameOverMessage] = useState("");
-  const [showCompleteScreen, setShowCompleteScreen] = useState(false); 
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false);
+  const [retrying, setRetrying] = useState(false); 
 
   const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
 
@@ -98,10 +99,25 @@ export default function WordleGame() {
     setGameOverMessage("");
   };
 
-  // ✅ Success screen
+  const handleRetry = async () => {
+    setRetrying(true);
+    try {
+      await axios.post(
+        `http://localhost:3000/api/v1/game/level/${level}/retry`,
+        {},
+        { withCredentials: true }
+      );
+      handleRestart(); 
+    } catch (err) {
+      console.error("Retry failed", err);
+    } finally {
+      setRetrying(false);
+    }
+  };
+
+ 
   if (showCompleteScreen) return <LevelCompleteScreen />;
 
-  // ✅ Defensive check
   if (!levelData || !levelData.question) {
     return <div className="text-white text-center mt-10">Loading or invalid data...</div>;
   }
@@ -141,19 +157,21 @@ export default function WordleGame() {
       <p className="text-sm text-gray-400 mb-2">
         Type letters. Use Backspace to delete. Press Enter to submit.
       </p>
-
+        
       {gameOverMessage && (
         <p className="text-xl font-bold mt-2 text-green-400">{gameOverMessage}</p>
       )}
 
       {gameOverMessage === "❌ Out of guesses!" && (
         <button
-          onClick={handleRestart}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
+          onClick={handleRetry}
+          disabled={retrying}
+          className="mt-4 px-4 py-2 bg-yellow-500 text-black rounded-xl hover:bg-yellow-600 transition disabled:opacity-50"
         >
-          🔁 Restart
+          {retrying ? "Retrying..." : "Retry Level (-5 Score)"}
         </button>
       )}
+
     </div>
   );
 }
