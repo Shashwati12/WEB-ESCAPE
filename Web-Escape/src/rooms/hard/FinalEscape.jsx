@@ -17,35 +17,37 @@ export default function PacmanMazeGame() {
   ]);
   const [dotsLeft, setDotsLeft] = useState(0);
   const [status, setStatus] = useState("loading");
-  const [retrying, setRetrying] = useState(false);
+
   const { currentLevel, completeLevel, updateScore } = useGameStore();
 
   const dotSound = useRef(null);
   const winSound = useRef(null);
   const loseSound = useRef(null);
 
+  // ⬇️ Fetch maze defined outside so it's reusable in retry
+  const fetchMaze = async () => {
+    try {
+      const res = await axios.get('http://localhost:3000/api/v1/level/10', {
+        withCredentials: true
+      });
+      const levelMaze = res.data.data.maze;
+      setMaze(levelMaze);
+      let count = 0;
+      levelMaze.forEach(row => row.forEach(cell => { if (cell === '.') count++; }));
+      setDotsLeft(count);
+      setStatus("playing");
+    } catch (err) {
+      console.error("Failed to fetch level data", err);
+    }
+  };
+
   useEffect(() => {
-    dotSound.current = new Audio('/sounds/dot.mp3');
+    dotSound.current = new Audio('/sounds/dot.wav');
     winSound.current = new Audio('/sounds/win.mp3');
     loseSound.current = new Audio('/sounds/caught.wav');
   }, []);
 
   useEffect(() => {
-    const fetchMaze = async () => {
-      try {
-        const res = await axios.get('http://localhost:3000/api/v1/level/10', {
-          withCredentials: true
-        });
-        const levelMaze = res.data.data.maze;
-        setMaze(levelMaze);
-        let count = 0;
-        levelMaze.forEach(row => row.forEach(cell => { if (cell === '.') count++; }));
-        setDotsLeft(count);
-        setStatus("playing");
-      } catch (err) {
-        console.error("Failed to fetch level data", err);
-      }
-    };
     fetchMaze();
   }, []);
 
@@ -59,6 +61,7 @@ export default function PacmanMazeGame() {
       else if (e.key === 'ArrowDown') newY++;
       else if (e.key === 'ArrowLeft') newX--;
       else if (e.key === 'ArrowRight') newX++;
+
       if (maze[newY]?.[newX] === '#' || !maze[newY] || !maze[newY][newX]) return;
 
       const newMaze = maze.map(row => [...row]);
@@ -67,6 +70,7 @@ export default function PacmanMazeGame() {
         setDotsLeft(prev => prev - 1);
         dotSound.current?.play();
       }
+
       setPlayerPos({ x: newX, y: newY });
       setMaze(newMaze);
     };
@@ -112,26 +116,24 @@ export default function PacmanMazeGame() {
       axios.post(`http://localhost:3000/api/v1/level/10/submit`, {
         answer: 'victory',
       }, { withCredentials: true })
-      .then(res => {
-        if (res.data.success) {
-          completeLevel(currentLevel);
-          updateScore(10);
-        }
-      });
+        .then(res => {
+          if (res.data.success) {
+            completeLevel(currentLevel);
+            updateScore(10);
+          }
+        });
     }
   }, [dotsLeft, status]);
 
   const handleRetry = async () => {
-    setRetrying(true);
-    try {
-      await axios.post(`http://localhost:3000/api/v1/game/level/10/retry`, {}, { withCredentials: true });
-      await fetchMaze();
-    } catch (err) {
-      console.error("Retry failed", err);
-      alert("Retry failed. Try again later.");
-    } finally {
-      setRetrying(false);
-    }
+    setPlayerPos({ x: 1, y: 1 });
+    setEnemies([
+      { x: 23, y: 1, color: 'red' },
+      { x: 23, y: 13, color: 'blue' },
+      { x: 1, y: 13, color: 'orange' },
+      { x: 12, y: 7, color: 'pink' }
+    ]);
+    await fetchMaze();
   };
 
   if (status === "loading") return <div className="text-white">Loading...</div>;
@@ -155,8 +157,8 @@ export default function PacmanMazeGame() {
                   ${cell === '.' ? 'after:content-["•"] after:text-yellow-300' : ''}`}
                 style={{ top: y * TILE_SIZE, left: x * TILE_SIZE }}
               >
-                {isPlayer && <img src="/sprites/pacman.png" alt="Pacman" className="w-full h-full" />}
-                {enemy && <img src={`/sprites/ghost-${enemy.color}.png`} alt="ghost" className="w-fit h-fit" />}
+                {isPlayer && <img src="/sprites/pacman.png" alt="Pacman" className="w-6 h-6" />}
+                {enemy && <img src={`/sprites/ghost-${enemy.color}.png`} alt="ghost" className="w-6 h-6" />}
               </div>
             );
           })
@@ -164,17 +166,18 @@ export default function PacmanMazeGame() {
       </div>
 
       {status === "won" && (
-        <p className="text-green-400 mt-6 text-xl font-bold">🎉 You cleared the maze!</p>
+        <div className="text-green-400 mt-6 text-xl font-bold">
+          🎉 You cleared the maze!
+        </div>
       )}
       {status === "lost" && (
-        <div>
-          <p className="text-red-500 mt-6 text-xl font-bold">💀 You were caught!</p>
+        <div className="flex flex-col items-center mt-6">
+          <p className="text-red-500 text-xl font-bold mb-2">💀 You were caught!</p>
           <button
+            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-500 transition"
             onClick={handleRetry}
-            disabled={retrying}
-            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white transition disabled:opacity-50"
           >
-            {retrying ? "Retrying..." : "Retry"}
+            Retry
           </button>
         </div>
       )}
