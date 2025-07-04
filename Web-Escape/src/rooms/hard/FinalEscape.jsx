@@ -17,6 +17,7 @@ export default function PacmanMazeGame() {
   ]);
   const [dotsLeft, setDotsLeft] = useState(0);
   const [status, setStatus] = useState("loading");
+  const [retrying, setRetrying] = useState(false);
   const { currentLevel, completeLevel, updateScore } = useGameStore();
 
   const dotSound = useRef(null);
@@ -120,6 +121,19 @@ export default function PacmanMazeGame() {
     }
   }, [dotsLeft, status]);
 
+  const handleRetry = async () => {
+    setRetrying(true);
+    try {
+      await axios.post(`http://localhost:3000/api/v1/game/level/10/retry`, {}, { withCredentials: true });
+      await fetchMaze();
+    } catch (err) {
+      console.error("Retry failed", err);
+      alert("Retry failed. Try again later.");
+    } finally {
+      setRetrying(false);
+    }
+  };
+
   if (status === "loading") return <div className="text-white">Loading...</div>;
 
   return (
@@ -153,7 +167,16 @@ export default function PacmanMazeGame() {
         <p className="text-green-400 mt-6 text-xl font-bold">🎉 You cleared the maze!</p>
       )}
       {status === "lost" && (
-        <p className="text-red-500 mt-6 text-xl font-bold">💀 You were caught!</p>
+        <div>
+          <p className="text-red-500 mt-6 text-xl font-bold">💀 You were caught!</p>
+          <button
+            onClick={handleRetry}
+            disabled={retrying}
+            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white transition disabled:opacity-50"
+          >
+            {retrying ? "Retrying..." : "Retry"}
+          </button>
+        </div>
       )}
     </div>
   );
