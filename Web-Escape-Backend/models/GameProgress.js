@@ -21,7 +21,7 @@ const gameProgressSchema = new mongoose.Schema({
   levelStatus: { type: [Boolean], default: Array(10).fill(false) },
 
   score: { type: Number, default: 0 },
-
+  lastScoreLevel: { type: Number, default: 0 },
   timer: { type: Number, default: 0 },
 
   assignedLevels: {

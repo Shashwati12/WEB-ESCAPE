@@ -74,12 +74,9 @@ export const updateTime = async (req, res) => {
     const progress = await GameProgress.findOneAndUpdate(
       { user: userId },
       { $set: { timer } },
-      { new: true }
+      { new: true , upsert:true}
     );
 
-    if (!progress) {
-      return res.status(404).json({ error: 'Progress not found' });
-    }
 
     res.status(200).json({ message: 'Time updated successfully', progress });
   } catch (error) {
@@ -166,5 +163,54 @@ export const useAttempt = async (req, res) => {
   }
 };
 
+export const getTimer = async (req, res) => {
+  try {
+    const userId = req.id;
 
+    let progress = await GameProgress.findOne({ user: userId });
 
+    if (!progress) {
+       progress = await GameProgress.create({ user: userId, timer: 0 });
+     
+    }
+
+    res.status(200).json({ timer: progress.timer });
+  } catch (error) {
+    console.error('Error fetching timer:', error);
+    res.status(500).json({ error: 'Failed to fetch timer' });
+  }
+};
+
+export const updateScore = async (req, res) => {
+  try {
+    const userId = req.id;
+    const { increment, currentLevel } = req.body;
+
+    const progress = await GameProgress.findOne({ user: userId });
+
+    if (!progress) {
+      return res.status(404).json({ error: "Game progress not found" });
+    }
+
+    // ✅ Check if the current level is greater than lastScoreLevel
+    if (currentLevel > (progress.lastScoreLevel || 0)) {
+      progress.score += increment;
+      progress.lastScoreLevel = currentLevel;
+
+      await progress.save();
+
+      return res
+        .status(200)
+        .json({ message: "Score updated successfully", score: progress.score });
+    }
+
+   
+    return res.status(200).json({
+      message: "Level already scored. No update made.",
+      score: progress.score,
+    });
+  } catch (error) {
+    console.error("Error updating score:", error);
+    res.status(500).json({ error: "Failed to update score" });
+  }
+};
