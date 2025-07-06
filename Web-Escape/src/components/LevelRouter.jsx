@@ -1,4 +1,5 @@
 import { useParams, Navigate } from "react-router-dom";
+
 import FindObjectGame from "../rooms/easy/FindObjectGame";
 import MatchQuestGame from "../rooms/easy/MatchOuest";
 import ShadowGameLevel from "../rooms/easy/ShadowShape";
@@ -10,13 +11,17 @@ import WordleGame from "../rooms/hard/WordleClone";
 import FlappyBirdLevel from "../rooms/hard/FlappyBird";
 import GameMenu from "./GameMenu";
 import PacmanMazeGame from "../rooms/hard/FinalEscape";
-
+import Timer from "./Timer";
+import Score from "./Score";
 export default function LevelRouter() {
   const { id } = useParams();
   const level = parseInt(id, 10);
-
+  const maxLevel= 10;
+ 
   const withMenu = (Component) => (
     <div className="relative w-full h-screen">
+      <Timer currentLevel={level} maxLevel={maxLevel}/>
+      <Score currentLevel={level}/>
       <GameMenu />
       {Component}
     </div>
