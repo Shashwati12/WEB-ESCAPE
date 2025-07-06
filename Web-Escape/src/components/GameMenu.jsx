@@ -42,7 +42,7 @@ const GameMenu = () => {
   };
 
 return (
-    <div className="absolute top-4 right-4 z-50">
+    <div className="fixed top-4 right-4 z-[9999] pointer-events-auto">
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
