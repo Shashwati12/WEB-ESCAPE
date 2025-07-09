@@ -44,7 +44,7 @@ const Score = ({ currentLevel }) => {
   }, [currentLevel]);
 
   return (
-    <div className="text-lg font-bold text-yellow-500">
+    <div className="bg-white/90 backdrop-blur-lg px-4 py-2 rounded-2xl shadow text-yellow-700 text-[15px] font-semibold">
       🏆 Score: {score}
     </div>
   );

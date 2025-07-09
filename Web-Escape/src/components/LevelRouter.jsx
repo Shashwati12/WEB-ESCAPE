@@ -20,11 +20,20 @@ export default function LevelRouter() {
  
   const withMenu = (Component) => (
     <div className="relative w-full h-screen">
-      <Timer currentLevel={level} maxLevel={maxLevel}/>
-      <Score currentLevel={level}/>
-      <GameMenu />
+    
+      <div className="fixed top-4 right-[72px] z-[9998] flex items-center space-x-3 pointer-events-none">
+        <Score currentLevel={level} />
+        <Timer currentLevel={level} maxLevel={maxLevel} />
+      </div>
+
+      <div className="fixed top-4 right-4 z-[9999] pointer-events-auto">
+        <GameMenu />
+      </div>
+
       {Component}
     </div>
+
+
   );
 
   const levelComponents = {
