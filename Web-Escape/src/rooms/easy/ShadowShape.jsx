@@ -1,16 +1,17 @@
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
-import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
+import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 import useAttempt from "../../hooks/useAttempt";
 
 export default function ShadowShapeLevel() {
   const { id } = useParams();
-  const level = parseInt(id, 10); 
+  const level = parseInt(id, 10);
 
   const [levelData, setLevelData] = useState(null);
-  const [selected, setSelected] = useState(null);
+  const [userAnswer, setUserAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -27,34 +28,35 @@ export default function ShadowShapeLevel() {
   } = useAttempt(level);
 
   useEffect(() => {
-    setCurrentLevel(level); 
+    setCurrentLevel(level);
   }, [level]);
 
   useEffect(() => {
-    const fetchPuzzle = async () => {
+    const fetchLevelData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/v1/level/${level}`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `http://localhost:3000/api/v1/level/${level}`,
+          { withCredentials: true }
+        );
         setLevelData(response.data);
-      } catch (err) {
-        console.error("Error loading puzzle:", err);
-        setFeedback("⚠️ Failed to load puzzle.");
+      } catch (error) {
+        console.error("Error fetching shadow shape data:", error);
+        setFeedback("⚠️ Failed to load the puzzle.");
       }
     };
-    fetchPuzzle();
+
+    fetchLevelData();
   }, [level]);
 
   const handleSubmit = async () => {
-    if (!selected || isSubmitting || isLocked) return;
-
+    if (!userAnswer.trim() || isSubmitting || isLocked) return;
     setIsSubmitting(true);
     setFeedback("");
 
     try {
       const response = await axios.post(
         `http://localhost:3000/api/v1/level/${level}/submit`,
-        { answer: selected },
+        { answer: userAnswer },
         { withCredentials: true }
       );
 
@@ -69,8 +71,8 @@ export default function ShadowShapeLevel() {
         setFeedback("❌ Incorrect! Try again.");
         await handleUseAttempt();
       }
-    } catch (err) {
-      console.error("Error submitting answer:", err);
+    } catch (error) {
+      console.error("Error submitting answer:", error);
       setFeedback("⚠️ Submission failed.");
     }
 
@@ -79,8 +81,8 @@ export default function ShadowShapeLevel() {
 
   if (showCompleteScreen) return <LevelCompleteScreen />;
 
-  if (!levelData || !levelData.data || !Array.isArray(levelData.data.options)) {
-    return <div className="text-black text-center mt-10">Loading or invalid data...</div>;
+  if (!levelData || !levelData.data || !levelData.data.image) {
+    return <div className="text-white mt-10 text-center">Loading or invalid data...</div>;
   }
 
   const currentPuzzle = levelData.data;
@@ -100,7 +102,6 @@ export default function ShadowShapeLevel() {
         <p className="text-red-400 font-semibold text-lg mb-2">❌ No attempts left</p>
       )}
 
-
       <div className="mb-6">
         <img
           src={`http://localhost:3000/${currentPuzzle.image}`}
@@ -109,28 +110,25 @@ export default function ShadowShapeLevel() {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-        {currentPuzzle.options.map((option, idx) => (
+      {!finished && (
+        <div className="flex flex-col items-center gap-4">
+          <input
+            type="text"
+            value={userAnswer}
+            onChange={(e) => setUserAnswer(e.target.value)}
+            placeholder="Type your answer"
+            disabled={isLocked || isSubmitting}
+            className="px-4 py-2 rounded text-black w-64 text-center bg-white disabled:opacity-60"
+          />
           <button
-            key={idx}
-            onClick={() => setSelected(option)}
-            disabled={isLocked}
-            className={`px-4 py-2 rounded border ${
-              selected === option ? "bg-green-600" : "bg-white text-black"
-            } hover:bg-green-700 transition-all disabled:opacity-50`}
+            onClick={handleSubmit}
+            disabled={isSubmitting || !userAnswer.trim()}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 rounded transition-all disabled:opacity-50"
           >
-            {option}
+            Submit
           </button>
-        ))}
-      </div>
-
-      <button
-        onClick={handleSubmit}
-        disabled={isSubmitting || !selected}
-        className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-all"
-      >
-        Submit
-      </button>
+        </div>
+      )}
 
       {feedback && (
         <p

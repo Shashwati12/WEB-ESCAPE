@@ -1,5 +1,5 @@
 import express from 'express';
-import { getOrCreateProgress, resetProgress, retryLevel, updateTime, useAttempt,getTimer,updateScore} from '../controllers/gameController.js';
+import { getOrCreateProgress, resetProgress, retryLevel, updateTime, useAttempt,getTimer} from '../controllers/gameController.js';
 import isAuthenticated  from '../middleware/authMiddleware.js';
 
 
@@ -11,5 +11,5 @@ router.patch('/progress/time',isAuthenticated, updateTime);
 router.get('/progress/getTime',isAuthenticated,getTimer);
 router.post('/level/:level/retry', isAuthenticated, retryLevel);
 router.post('/level/:level/attempt-used', isAuthenticated, useAttempt);
-router.patch('/progress/score', isAuthenticated, updateScore);
+
 export default router;

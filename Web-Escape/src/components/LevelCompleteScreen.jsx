@@ -11,6 +11,7 @@ const LevelCompleteScreen = () => {
   const { currentLevel, setCurrentLevel } = useGameStore();
 
   const handleNext = () => {
+     window.dispatchEvent(new Event('scoreUpdated'));
     if (currentLevel < 10) {
       setCurrentLevel(currentLevel + 1);
       navigate(`/level/${currentLevel + 1}`);
@@ -27,6 +28,7 @@ const LevelCompleteScreen = () => {
          
       <button
         onClick={handleNext}
+      
         className="px-6 py-3 bg-purple-600 hover:bg-purple-800 transition rounded-2xl text-xl font-semibold shadow-xl"
       >
         Next Room →

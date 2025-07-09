@@ -1,53 +1,51 @@
-// src/components/Score.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const Score = ({ currentLevel }) => {
+const ScoreDisplay = () => {
   const [score, setScore] = useState(0);
+  
 
-  // Fetch score initially
+  const fetchScore = async () => {
+    try {
+      const res = await axios.get('http://localhost:3000/api/v1/game/progress', {
+        withCredentials: true,
+      });
+      setScore(res.data.score || 0);
+    } catch (error) {
+      console.error('Failed to fetch score:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchScore = async () => {
-      try {
-        const res = await axios.get("http://localhost:3000/api/v1/game/progress/score", {
-          withCredentials: true,
-        });
-        setScore(res.data.score || 0);
-      } catch (err) {
-        console.error("Failed to fetch score", err);
-      }
+    fetchScore(); 
+
+    
+    const handleScoreUpdate = () => {
+      fetchScore();
     };
-    fetchScore();
+
+    window.addEventListener('scoreUpdated', handleScoreUpdate);
+    window.addEventListener('resetTimer', handleScoreUpdate);
+
+    return () => {
+      window.removeEventListener('scoreUpdated', handleScoreUpdate);
+      window.removeEventListener('resetTimer', handleScoreUpdate);
+    };
   }, []);
 
-  // Update score when currentLevel changes
-  useEffect(() => {
-    const updateScore = async () => {
-      try {
-        const res = await axios.patch(
-          "http://localhost:3000/api/v1/game/progress/score",
-          {
-            increment: 10,
-            currentLevel: currentLevel, // pass correctly
-          },
-          { withCredentials: true }
-        );
-        setScore(res.data.score);
-      } catch (err) {
-        console.error("Failed to update score", err);
-      }
-    };
-
-    if (currentLevel > 1 && currentLevel <= 10) {
-      updateScore();
-    }
-  }, [currentLevel]);
-
-  return (
+ return (
     <div className="bg-white/90 backdrop-blur-lg px-4 py-2 rounded-2xl shadow text-yellow-700 text-[15px] font-semibold">
       🏆 Score: {score}
-    </div>
-  );
+    </div>
+  );
 };
 
-export default Score;
+export default ScoreDisplay;
+
+
+
+
+
+
+
+

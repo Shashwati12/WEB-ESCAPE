@@ -14,8 +14,9 @@ const GameMenu = () => {
       await axios.post('http://localhost:3000/api/v1/game/progress/reset', {} ,{
         withCredentials: true,
       });
-
-      navigate(`/level/1`)
+       window.dispatchEvent(new Event('resetTimer'));
+       window.dispatchEvent(new Event('scoreUpdated'));
+      navigate(`/level/1`);
     } catch (error) {
       console.error('Failed to start new game:', error);
     }
@@ -29,7 +30,8 @@ const GameMenu = () => {
       await axios.post('http://localhost:3000/api/v1/game/progress/reset', {} , {
         withCredentials: true,
       });
-
+        window.dispatchEvent(new Event('resetTimer'));
+        window.dispatchEvent(new Event('scoreUpdated'));
       navigate(`/dashboard`)
     } catch (error) {
       console.error('Failed to quit game:', error);
