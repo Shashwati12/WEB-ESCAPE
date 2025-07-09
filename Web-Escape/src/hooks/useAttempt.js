@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import useGameStore from "../state/gameStore"; 
 
 export default function useAttempt(level) {
   const [attemptsLeft, setAttemptsLeft] = useState(null);
@@ -51,6 +52,9 @@ export default function useAttempt(level) {
       );
       setAttemptsLeft(res.data.newAttempts);
       setIsLocked(false);
+      window.dispatchEvent(new Event('scoreUpdated'));
+      
+
     } catch (err) {
       console.error("Retry failed", err);
     } finally {
