@@ -84,9 +84,10 @@ const Timer = ({ currentLevel, maxLevel }) => {
   if (seconds === null) return null; // or a loader/spinner
 
   return (
-    <div className="text-lg font-bold text-green-600">
-      ⏱ Time: {formatTime(seconds)}
+    <div className="bg-white/90 backdrop-blur-lg px-4 py-2 rounded-2xl shadow text-green-700 text-[15px] font-semibold">
+    ⏱ Time: {formatTime(seconds)}
     </div>
+
   );
 };
 

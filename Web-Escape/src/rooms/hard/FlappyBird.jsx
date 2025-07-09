@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom'; 
 import birdImg from '../../assets/image.png';
 import birdFlapImg from '../../assets/image.png';
-import bgImg from '../../assets/background-img.png';
+import bgImg from '../../assets/Background-Image.png';
 import useGameStore from '../../state/gameStore';
 import LevelCompleteScreen from '../../components/LevelCompleteScreen'; 
 import axios from 'axios';
