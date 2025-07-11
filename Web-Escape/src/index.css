@@ -1,5 +1,4 @@
 @import "tailwindcss";
-<<<<<<< HEAD
 
 @keyframes pop {
   0% {
@@ -18,5 +17,3 @@
 .animate-pop {
   animation: pop 0.25s ease-out;
 }
-=======
->>>>>>> fc426fb827dcce4ca8604861e5fa1c915a8b4728
