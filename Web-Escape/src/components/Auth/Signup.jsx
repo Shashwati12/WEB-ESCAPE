@@ -1,17 +1,19 @@
+
+
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 import axios from "axios";
 import { USER_API_POINT } from "../../utils/Apicall";
-import {toast } from "sonner";
+import { toast } from "sonner";
 import { z } from "zod";
+import horrorBg2 from "../../assets/login3.png";
 
 const registerSchema = z.object({
   username: z.string().min(4, "Username must be at least 4 characters"),
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
-
 
 function Signup() {
   const navigate = useNavigate();
@@ -20,7 +22,6 @@ function Signup() {
     email: "",
     password: "",
   });
-
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -31,15 +32,13 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const result = registerSchema.safeParse(formData);
-  if (!result.success) {
-    // Extract the first validation error message
-    const errorMessage = result.error.issues[0]?.message || "Invalid input";
-    toast.error(errorMessage);
-    return;
-  }
-   
+    if (!result.success) {
+      const errorMessage = result.error.issues[0]?.message || "Invalid input";
+      toast.error(errorMessage);
+      return;
+    }
 
     try {
       const res = await axios.post(`${USER_API_POINT}/register`, formData, {
@@ -47,83 +46,96 @@ function Signup() {
           "Content-Type": "application/json",
         },
       });
+
       if (res.data.success) {
-        toast.success("registered successfully");
+        toast.success("Registered successfully");
         navigate("/login");
       }
     } catch (error) {
       if (error.response) {
-        toast.error(error.response.data.message);
+        toast.error(error.response.data.message || "Registration Failed");
       } else {
         toast.error("An unexpected error occurred");
       }
     }
-    
   };
 
   return (
-    <div>
-      <Navbar />
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 px-4">
-        <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-          <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">
-            Create an Account
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block mb-1 font-medium">Name</label>
-              <input
-                type="text"
-                name="username"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="John Doe"
-                value={formData.username}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1 font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="example@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1 font-medium">Password</label>
-              <input
-                type="password"
-                name="password"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
+    <div
+      className="min-h-screen text-[#E5E5E5] relative"
+      style={{
+        backgroundImage: `url(${horrorBg2})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="bg-[#0a001a]/60 min-h-screen">
+        <Navbar />
+        <div className="flex justify-center items-center min-h-screen px-4">
+          <div className="bg-white/10 backdrop-blur-md p-8 rounded-xl border border-white/20 shadow-[0_0_25px_rgba(255,76,76,0.4)] w-full max-w-md transition-transform duration-300 hover:scale-[1.02]">
+            <h2 className="text-3xl font-bold mb-6 text-center text-[#FF4C4C] animate-pulse tracking-wide drop-shadow-[0_0_10px_#FF4C4C]">
+              BECOME ONE WITH DARKNESS
+            </h2>
 
-            <button
-              type="submit"
-              className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
-            >
-              Sign Up
-            </button>
-            
-          </form>
-          <p className="mt-4 text-sm text-center">
-            Already have an account?{" "}
-            <span
-              onClick={() => navigate("/login")}
-              className="text-blue-600 cursor-pointer hover:underline"
-            >
-              Login
-            </span>
-          </p>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block mb-1 text-sm text-[#E5E5E5]">Name</label>
+                <input
+                  type="text"
+                  name="username"
+                  className="w-full px-4 py-2 bg-white/10 text-[#E5E5E5] border border-[#A259FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4C4C] backdrop-blur-sm placeholder:text-white/70"
+                  placeholder="ShadowWalker"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm text-[#E5E5E5]">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  className="w-full px-4 py-2 bg-white/10 text-[#E5E5E5] border border-[#A259FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4C4C] backdrop-blur-sm placeholder:text-white/70"
+                  placeholder="ghost@escape.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-sm text-[#E5E5E5]">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  className="w-full px-4 py-2 bg-white/10 text-[#E5E5E5] border border-[#A259FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF4C4C] backdrop-blur-sm placeholder:text-white/70"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2 px-4 bg-[#FF4C4C] text-black font-semibold rounded-lg hover:bg-[#B3001B] hover:text-white transition duration-300"
+              >
+                Sign Up
+              </button>
+            </form>
+
+            <p className="mt-4 text-sm text-center text-[#FFBABA]">
+              Already a shadow being?{" "}
+              <span
+                onClick={() => navigate("/login")}
+                className="text-[#FF4C4C] cursor-pointer hover:text-[#B3001B] hover:underline transition"
+              >
+                Return to login
+              </span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -131,5 +143,6 @@ function Signup() {
 }
 
 export default Signup;
+
 
 
