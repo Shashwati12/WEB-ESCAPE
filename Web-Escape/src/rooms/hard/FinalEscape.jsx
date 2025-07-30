@@ -173,6 +173,23 @@ export default function PacmanMazeGame() {
 };
 
 
+
+    const handleRetryWithAPI = async () => {
+    try {
+      await axios.post(
+        `http://localhost:3000/api/v1/game/level/10/retry`,
+        {},
+        { withCredentials: true }
+      );
+    } catch (err) {
+      console.error('Retry API failed', err);
+      alert('⚠️ Retry failed. Try again later.');
+      return;
+    }
+
+    handleRetry(); // call your original retry logic
+  };
+
   if (status === "loading") return <div className="text-white">Loading...</div>;
 
   return (
@@ -211,8 +228,8 @@ export default function PacmanMazeGame() {
         <div className="flex flex-col items-center mt-6">
           <p className="text-red-500 text-xl font-bold mb-2">💀 You were caught!</p>
           <button onClick={handleRetry} disabled={retrying || attemptsLeft === 0}>
-  Retry
-</button>
+            Retry
+          </button>
 
         </div>
       )}

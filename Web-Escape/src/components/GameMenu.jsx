@@ -22,6 +22,24 @@ const GameMenu = () => {
     }
   };
 
+const handleRestartGame = async () => {
+  try {
+    await axios.post('http://localhost:3000/api/v1/game/progress/reset', {}, {
+      withCredentials: true,
+    });
+
+    window.dispatchEvent(new Event('resetTimer'));
+    window.dispatchEvent(new Event('scoreUpdated'));
+
+    window.location.href = '/level/1';
+
+  } catch (error) {
+    console.error("Failed to restart game:", error);
+  }
+};
+
+
+
   const handleQuitGame = async () => {
     const confirmQuit = window.confirm('Are you sure you want to quit the game and return to dashboard?');
     if (!confirmQuit) return;
@@ -56,7 +74,7 @@ return (
 
       {isOpen && (
         <div className="w-56 bg-white/90 backdrop-blur-lg border border-white/30 rounded-2xl shadow-xl p-4 space-y-3 text-[15px] text-gray-800 animate-fade-in">
-          <button className="w-full text-left hover:text-blue-600 transition" onClick={handleStartNewGame}>
+          <button className="w-full text-left hover:text-blue-600 transition" onClick={handleRestartGame}>
             🔁 Restart the Game
           </button>
           <button className="w-full text-left hover:text-blue-600 transition" onClick={handleDashboard}>
