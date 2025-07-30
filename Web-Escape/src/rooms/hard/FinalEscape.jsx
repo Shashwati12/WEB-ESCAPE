@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import useGameStore from '../../state/gameStore';
-import useAttempt from "../../hooks/useAttempt";
 
 const TILE_SIZE = 32;
 const ENEMY_SPEED = 500;
@@ -16,7 +15,6 @@ export default function PacmanMazeGame() {
     { x: 1, y: 13, color: 'orange' },
     { x: 12, y: 7, color: 'pink' }
   ]);
-  
   const [dotsLeft, setDotsLeft] = useState(0);
   const [status, setStatus] = useState("loading");
 
@@ -127,26 +125,7 @@ export default function PacmanMazeGame() {
     }
   }, [dotsLeft, status]);
 
-  // const handleRetry = async () => {
-  //   setPlayerPos({ x: 1, y: 1 });
-  //   setEnemies([
-  //     { x: 23, y: 1, color: 'red' },
-  //     { x: 23, y: 13, color: 'blue' },
-  //     { x: 1, y: 13, color: 'orange' },
-  //     { x: 12, y: 7, color: 'pink' }
-  //   ]);
-  //   await fetchMaze();
-  // };
-
- const handleRetry = async () => {
-  try {
-    const response = await axios.post(
-      `http://localhost:3000/api/v1/game/level/${currentLevel}/retry`,
-      {},
-      { withCredentials: true }
-    );
-
-    // ✅ Reset player and enemies
+  const handleRetry = async () => {
     setPlayerPos({ x: 1, y: 1 });
     setEnemies([
       { x: 23, y: 1, color: 'red' },
@@ -154,24 +133,8 @@ export default function PacmanMazeGame() {
       { x: 1, y: 13, color: 'orange' },
       { x: 12, y: 7, color: 'pink' }
     ]);
-
-    // ✅ Re-fetch maze and dots
     await fetchMaze();
-
-    // ✅ Resume game
-    setStatus("playing");
-
-    // ✅ Update score in global store
-    if (response.data?.scoreLeft !== undefined) {
-      updateScore(response.data.scoreLeft);
-      window.dispatchEvent(new Event('scoreUpdated')); // optional if other components rely on it
-    }
-  } catch (error) {
-    console.error("Retry failed:", error);
-    alert("⚠️ Retry failed. Please try again later.");
-  }
-};
-
+  };
 
 
     const handleRetryWithAPI = async () => {
@@ -227,10 +190,12 @@ export default function PacmanMazeGame() {
       {status === "lost" && (
         <div className="flex flex-col items-center mt-6">
           <p className="text-red-500 text-xl font-bold mb-2">💀 You were caught!</p>
-          <button onClick={handleRetry} disabled={retrying || attemptsLeft === 0}>
+          <button
+            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-500 transition"
+            onClick={handleRetryWithAPI}
+          >
             Retry
           </button>
-
         </div>
       )}
     </div>

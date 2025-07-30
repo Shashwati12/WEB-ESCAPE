@@ -18,7 +18,7 @@ const ScoreDisplay = () => {
 
   useEffect(() => {
     fetchScore(); 
-     
+
     
     const handleScoreUpdate = () => {
       fetchScore();

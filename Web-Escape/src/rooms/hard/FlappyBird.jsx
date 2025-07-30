@@ -6,7 +6,6 @@ import bgImg from '../../assets/Background-Image.png';
 import useGameStore from '../../state/gameStore';
 import LevelCompleteScreen from '../../components/LevelCompleteScreen'; 
 import axios from 'axios';
-import useAttempt from '../../hooks/useAttempt';
 
 const FlappyBirdLevel = () => {
   const { id } = useParams(); 
@@ -20,7 +19,6 @@ const FlappyBirdLevel = () => {
   const [levelCompleted, setLevelCompleted] = useState(false);
   const [showCompleteScreen, setShowCompleteScreen] = useState(false);
   const [retrying, setRetrying] = useState(false);  
-  const { attemptsLeft, updateAttempts } = useAttempt(level);
 
   const moveSpeed = 2.8;
   const gravity = 0.18;
@@ -31,13 +29,8 @@ const FlappyBirdLevel = () => {
   const birdRef = useRef();
   const backgroundRef = useRef();
   const [birdSrc, setBirdSrc] = useState(birdImg);
-   
-  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
 
-   
-useEffect(() => {
-  updateScore(score); // 🔄 Automatically reflect changes
-}, [score]);
+  const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
 
   useEffect(() => {
     setCurrentLevel(level); 
@@ -56,45 +49,26 @@ useEffect(() => {
     fetchLevelData();
   }, [level]);
 
-  // const resetGame = () => {
-  //   setGameState('Start');
-  //   setBirdTop((40 * window.innerHeight) / 100);
-  //   setBirdDy(0);
-  //   setScore(0);
-  //   setPipes([]);
-  //   setFrameCount(0);
-  //   setLevelCompleted(false);
-  //   setShowCompleteScreen(false);
-  // };
-  const resetGame = (preserveScore = false) => {
-  setGameState('Start');
-  setBirdTop((40 * window.innerHeight) / 100);
-  setBirdDy(0);
-  if (!preserveScore) setScore(0); // Only reset score if not retrying
-  setPipes([]);
-  setFrameCount(0);
-  setLevelCompleted(false);
-  setShowCompleteScreen(false);
-};
-
+  const resetGame = () => {
+    setGameState('Start');
+    setBirdTop((40 * window.innerHeight) / 100);
+    setBirdDy(0);
+    setScore(0);
+    setPipes([]);
+    setFrameCount(0);
+    setLevelCompleted(false);
+    setShowCompleteScreen(false);
+  };
 
   const handleRetry = async () => {
     setRetrying(true);
     try {
-     const response= await axios.post(
+      await axios.post(
         `http://localhost:3000/api/v1/game/level/${level}/retry`,
         {},
         { withCredentials: true }
       );
-           const { newAttempts, scoreLeft } = response.data;
-
-      updateAttempts(newAttempts);
-      
-    updateScore(scoreLeft);   
-    setScore(scoreLeft); 
-            window.dispatchEvent(new Event("scoreUpdated"));
-
-       resetGame(true);   
+      resetGame();
     } catch (err) {
       console.error('Retry failed', err);
       alert('⚠️ Retry failed. Try again later.');
@@ -154,7 +128,7 @@ useEffect(() => {
     const birdCenterX = birdBox.left + birdBox.width / 2;
     const birdCenterY = birdBox.top + birdBox.height / 2;
     const birdRadius = Math.min(birdBox.width, birdBox.height) / 2 - 10;
-   
+
     const newPipes = pipes.map(pipe => {
       const pipeBox = document.getElementById(pipe.id)?.getBoundingClientRect();
       if (!pipeBox) return pipe;
@@ -273,13 +247,12 @@ useEffect(() => {
               Your Score: <span className="text-green-600 font-bold">{score}</span>
             </p>
             <button
-  onClick={handleRetry}
-  disabled={retrying || attemptsLeft === 0}
-  className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition disabled:opacity-50"
->
-  {retrying ? "Retrying..." : "Restart Game"}
-</button>
-
+              onClick={handleRetry}
+              disabled={retrying}
+              className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md transition disabled:opacity-50"
+            >
+              {retrying ? "Retrying..." : "Restart Game"}
+            </button>
           </div>
         </div>
       )}

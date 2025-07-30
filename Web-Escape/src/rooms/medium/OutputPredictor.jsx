@@ -1,9 +1,12 @@
+
+
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import useGameStore from "../../state/gameStore";
 import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 import useAttempt from "../../hooks/useAttempt";
+
 
 const styleBlock = `
   @keyframes ghostGlow {
@@ -55,11 +58,12 @@ export default function OutputPredictorLevel() {
   const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
   const { attemptsLeft, isLocked, retrying, handleUseAttempt, handleRetry } = useAttempt(level);
 
+  // VANTA Fog background ref & effect
   const fogRef = useRef(null);
   const fogEffect = useRef(null);
 
   useEffect(() => {
-   
+    // Initialize fog effect using script tags
     const initFog = () => {
       if (!window.THREE) {
         const threeScript = document.createElement("script");
