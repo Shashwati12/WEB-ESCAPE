@@ -6,7 +6,7 @@ export default function useAttempt(level) {
   const [attemptsLeft, setAttemptsLeft] = useState(null);
   const [retrying, setRetrying] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
-
+  
   useEffect(() => {
     if (!level) return;
 
@@ -61,6 +61,8 @@ export default function useAttempt(level) {
       setRetrying(false);
     }
   };
+  const updateAttempts = (val) => setAttemptsLeft(val); // ✅ Add this
+
 
   return {
     attemptsLeft,
@@ -68,5 +70,6 @@ export default function useAttempt(level) {
     retrying,
     handleUseAttempt,
     handleRetry,
+    updateAttempts
   };
 }
