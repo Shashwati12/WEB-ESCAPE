@@ -1,4 +1,193 @@
+// import { useEffect, useState } from "react";
+// import { useParams } from "react-router-dom";
+// import axios from "axios";
+// import useGameStore from "../../state/gameStore";
+// import LevelCompleteScreen from "../../components/LevelCompleteScreen";
+// import useAttempt from "../../hooks/useAttempt";
+// import Particles from "../../components/particle"; // adjust the path if needed
 
+// export default function PatternBreakerLevel() {
+//   const { id } = useParams();
+//   const level = parseInt(id, 10);
+
+//   const [levelData, setLevelData] = useState(null);
+//   const [userAnswer, setUserAnswer] = useState("");
+//   const [feedback, setFeedback] = useState("");
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+//   const [finished, setFinished] = useState(false);
+//   const [showCompleteScreen, setShowCompleteScreen] = useState(false);
+
+//   const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+//   useEffect(() => {
+//     setCurrentLevel(level);
+//   }, [level]);
+
+//   const {
+//     attemptsLeft,
+//     isLocked,
+//     retrying,
+//     handleUseAttempt,
+//     handleRetry,
+//   } = useAttempt(level);
+
+//   useEffect(() => {
+//     const fetchLevelData = async () => {
+//       try {
+//         const response = await axios.get(
+//           `http://localhost:3000/api/v1/level/${level}`,
+//           { withCredentials: true }
+//         );
+//         setLevelData(response.data);
+//       } catch (error) {
+//         console.error("Error fetching pattern breaker data:", error);
+//         setFeedback("⚠️ Failed to load the question.");
+//       }
+//     };
+
+//     fetchLevelData();
+//   }, [level]);
+
+//   const handleSubmit = async () => {
+//     if (!userAnswer.trim() || isSubmitting || isLocked) return;
+//     setIsSubmitting(true);
+//     setFeedback("");
+
+//     try {
+//       const response = await axios.post(
+//         `http://localhost:3000/api/v1/level/${level}/submit`,
+//         { answer: userAnswer },
+//         { withCredentials: true }
+//       );
+
+//       const correct = response.data.message === "Correct answer";
+//       if (correct) {
+//         setFeedback("✅ Correct!");
+//         setFinished(true);
+//         completeLevel(level);
+//         updateScore(10);
+//         setTimeout(() => setShowCompleteScreen(true), 1500);
+//       } else {
+//         setFeedback("❌ Incorrect! Try again.");
+//         await handleUseAttempt();
+//       }
+//     } catch (error) {
+//       console.error("Error submitting answer:", error);
+//       setFeedback("⚠️ Something went wrong. Please try again.");
+//     }
+
+//     setIsSubmitting(false);
+//   };
+
+//   if (showCompleteScreen) return <LevelCompleteScreen />;
+
+//   if (!levelData) return <div className="text-white">Loading...</div>;
+
+//   return  (
+//   <div className="relative min-h-screen bg-gradient-to-br from-[#0D0D0D] via-[#1a0e2a] to-[#0D0D0D] text-white overflow-hidden font-sans">
+//   {/* Background particles */}
+//   <div className="absolute inset-0 z-0">
+//     <Particles
+//       particleColors={["#ffffff", "#ffffff"]}
+//       particleCount={300}
+//       particleSpread={10}
+//       speed={0.1}
+//       particleBaseSize={100}
+//       moveParticlesOnHover={true}
+//       alphaParticles={false}
+//       disableRotation={false}
+//     />
+//   </div>
+
+//   {/* Main Content */}
+//   <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6">
+//     {/* Heading */}
+//     <i className="text-4xl md:text-5xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-400 drop-shadow-md">
+//       🧩 Pattern Breaker
+//     </i>
+
+//     {/* Question Card */}
+//     <div className="w-full max-w-2xl bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-2xl transition-all duration-300 hover:scale-[1.01]">
+//    <p className="text-xl font-orbitron text-purple-300 text-center whitespace-pre-wrap tracking-wide leading-relaxed max-w-3xl bg-white/10 p-4 rounded-md shadow-lg">
+//   {levelData.question}
+// </p>
+
+
+
+//       {/* Attempts & Lock */}
+//       {attemptsLeft !== null && (
+//         <p className="text-yellow-300 font-medium mb-2 text-center">
+//           🧠 Attempts Left: {attemptsLeft}
+//         </p>
+//       )}
+//       {isLocked && (
+//         <p className="text-red-400 font-semibold text-center mb-2">
+//           ❌ No attempts left
+//         </p>
+//       )}
+
+//       {/* Input + Submit */}
+//       {!finished && (
+//         <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-4">
+//           <input
+//             type="text"
+//             value={userAnswer}
+//             onChange={(e) => setUserAnswer(e.target.value)}
+//             placeholder="Your Answer"
+//             disabled={isSubmitting || isLocked}
+//             className="px-4 py-2 rounded-xl text-black w-64 text-center bg-white/90 border border-white/30 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-50"
+//           />
+//           <button
+//             onClick={handleSubmit}
+//             disabled={isSubmitting || isLocked}
+//             className="px-6 py-2 bg-gradient-to-r from-green-500 to-teal-400 text-white font-semibold rounded-xl shadow-md hover:scale-105 transition-all disabled:opacity-50"
+//           >
+//             Submit
+//           </button>
+//         </div>
+//       )}
+
+//       {/* Feedback Message */}
+//       {feedback && (
+//         <p
+//           className={`mt-6 text-xl text-center font-bold ${
+//             feedback.startsWith("✅")
+//               ? "text-green-400"
+//               : feedback.startsWith("❌")
+//               ? "text-red-400"
+//               : "text-yellow-300"
+//           }`}
+//         >
+//           {feedback}
+//         </p>
+//       )}
+
+//       {/* Puzzle Solved */}
+//       {finished && (
+//         <p className="mt-6 text-2xl text-center font-bold text-green-400">
+//           🎉 Puzzle Solved!
+//         </p>
+//       )}
+
+//       {/* Retry Button */}
+//       {isLocked && (
+//         <div className="flex justify-center mt-6">
+//           <button
+//             onClick={handleRetry}
+//             disabled={retrying}
+//             className="px-6 py-2 bg-yellow-400 text-black font-semibold rounded-lg shadow-md hover:bg-yellow-500 transition-all disabled:opacity-50"
+//           >
+//             {retrying ? "Retrying..." : "Retry Level (-5 Score)"}
+//           </button>
+//         </div>
+//       )}
+//     </div>
+//   </div>
+// </div>
+
+// );
+
+// }
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";

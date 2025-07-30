@@ -127,7 +127,6 @@ export const retryLevel = async (req, res) => {
   }
 };
 
-
 export const useAttempt = async (req, res) => {
   try {
     const userId = req.id;
