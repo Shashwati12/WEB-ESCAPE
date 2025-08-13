@@ -61,12 +61,13 @@ export default function useAttempt(level) {
       setRetrying(false);
     }
   };
-
+const updateAttempts = (val) => setAttemptsLeft(val);
   return {
     attemptsLeft,
     isLocked,
     retrying,
     handleUseAttempt,
     handleRetry,
+     updateAttempts
   };
 }
