@@ -5,6 +5,7 @@ import birdFlapImg from '../../assets/image.png';
 import bgImg from '../../assets/Background-Image.png';
 import useGameStore from '../../state/gameStore';
 import LevelCompleteScreen from '../../components/LevelCompleteScreen'; 
+import useAttempt from '../../hooks/useAttempt';
 import axios from 'axios';
 
 const FlappyBirdLevel = () => {
@@ -18,7 +19,8 @@ const FlappyBirdLevel = () => {
   const [frameCount, setFrameCount] = useState(0);
   const [levelCompleted, setLevelCompleted] = useState(false);
   const [showCompleteScreen, setShowCompleteScreen] = useState(false);
-  const [retrying, setRetrying] = useState(false);  
+  const [retrying, setRetrying] = useState(false); 
+   const { attemptsLeft, updateAttempts } = useAttempt(level); 
 
   const moveSpeed = 2.8;
   const gravity = 0.18;
@@ -31,6 +33,11 @@ const FlappyBirdLevel = () => {
   const [birdSrc, setBirdSrc] = useState(birdImg);
 
   const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
+
+     
+useEffect(() => {
+  updateScore(score); // 🔄 Automatically reflect changes
+}, [score]);
 
   useEffect(() => {
     setCurrentLevel(level); 
@@ -49,26 +56,35 @@ const FlappyBirdLevel = () => {
     fetchLevelData();
   }, [level]);
 
-  const resetGame = () => {
-    setGameState('Start');
-    setBirdTop((40 * window.innerHeight) / 100);
-    setBirdDy(0);
-    setScore(0);
-    setPipes([]);
-    setFrameCount(0);
-    setLevelCompleted(false);
-    setShowCompleteScreen(false);
-  };
+ const resetGame = (preserveScore = false) => {
+  setGameState('Start');
+  setBirdTop((40 * window.innerHeight) / 100);
+  setBirdDy(0);
+  if (!preserveScore) setScore(0); // Only reset score if not retrying
+  setPipes([]);
+  setFrameCount(0);
+  setLevelCompleted(false);
+  setShowCompleteScreen(false);
+};
+
 
   const handleRetry = async () => {
     setRetrying(true);
     try {
-      await axios.post(
-        `http://localhost:3000/api/v1/game/level/${level}/retry`,
+      const response= await axios.post(
+         `http://localhost:3000/api/v1/game/level/${level}/retry`,
         {},
         { withCredentials: true }
-      );
-      resetGame();
+         
+      ); const { newAttempts, scoreLeft } = response.data;
+         updateAttempts(newAttempts);
+      
+    updateScore(scoreLeft);   
+    setScore(scoreLeft); 
+            window.dispatchEvent(new Event("scoreUpdated"));
+
+       resetGame(true);   
+     
     } catch (err) {
       console.error('Retry failed', err);
       alert('⚠️ Retry failed. Try again later.');

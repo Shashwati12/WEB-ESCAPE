@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import useGameStore from '../../state/gameStore';
-
+import useAttempt from '../../hooks/useAttempt';
 const TILE_SIZE = 32;
 const ENEMY_SPEED = 500;
 const GHOST_COLORS = ['red', 'blue', 'orange', 'pink'];
-
+import { useParams } from 'react-router-dom'; 
 export default function PacmanMazeGame() {
   const [maze, setMaze] = useState([]);
   const [playerPos, setPlayerPos] = useState({ x: 1, y: 1 });
@@ -15,10 +15,17 @@ export default function PacmanMazeGame() {
     { x: 1, y: 13, color: 'orange' },
     { x: 12, y: 7, color: 'pink' }
   ]);
+    const { id } = useParams(); 
+   const level = parseInt(id, 10); 
   const [dotsLeft, setDotsLeft] = useState(0);
   const [status, setStatus] = useState("loading");
-
+  const [score, setScore] = useState(0);
+  const { attemptsLeft, updateAttempts } = useAttempt(level);
   const { currentLevel, completeLevel, updateScore } = useGameStore();
+  
+   useEffect(() => {
+  updateScore(score); // 🔄 Automatically reflect changes
+}, [score]);
 
   const dotSound = useRef(null);
   const winSound = useRef(null);
