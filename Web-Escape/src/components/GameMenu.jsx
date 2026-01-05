@@ -1,7 +1,7 @@
-import React, { useState ,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import axios from 'axios';
+import api from '../api/axios';
 
 const TOTAL_LEVELS = 10;
 
@@ -11,32 +11,28 @@ const GameMenu = () => {
 
   const handleStartNewGame = async () => {
     try {
-      await axios.post('http://localhost:3000/api/v1/game/progress/reset', {} ,{
-        withCredentials: true,
-      });
-       window.dispatchEvent(new Event('resetTimer'));
-       window.dispatchEvent(new Event('scoreUpdated'));
+      await api.post('/game/progress/reset', {});
+      window.dispatchEvent(new Event('resetTimer'));
+      window.dispatchEvent(new Event('scoreUpdated'));
       navigate(`/level/1`);
     } catch (error) {
       console.error('Failed to start new game:', error);
     }
   };
 
-const handleRestartGame = async () => {
-  try {
-    await axios.post('http://localhost:3000/api/v1/game/progress/reset', {}, {
-      withCredentials: true,
-    });
+  const handleRestartGame = async () => {
+    try {
+      await api.post('/game/progress/reset', {});
 
-    window.dispatchEvent(new Event('resetTimer'));
-    window.dispatchEvent(new Event('scoreUpdated'));
+      window.dispatchEvent(new Event('resetTimer'));
+      window.dispatchEvent(new Event('scoreUpdated'));
 
-    window.location.href = '/level/1';
+      window.location.href = '/level/1';
 
-  } catch (error) {
-    console.error("Failed to restart game:", error);
-  }
-};
+    } catch (error) {
+      console.error("Failed to restart game:", error);
+    }
+  };
 
 
 
@@ -45,11 +41,9 @@ const handleRestartGame = async () => {
     if (!confirmQuit) return;
 
     try {
-      await axios.post('http://localhost:3000/api/v1/game/progress/reset', {} , {
-        withCredentials: true,
-      });
-        window.dispatchEvent(new Event('resetTimer'));
-        window.dispatchEvent(new Event('scoreUpdated'));
+      await api.post('/game/progress/reset', {});
+      window.dispatchEvent(new Event('resetTimer'));
+      window.dispatchEvent(new Event('scoreUpdated'));
       navigate(`/dashboard`)
     } catch (error) {
       console.error('Failed to quit game:', error);
@@ -61,7 +55,7 @@ const handleRestartGame = async () => {
     navigate('/dashboard')
   };
 
-return (
+  return (
     <div className="fixed top-4 right-4 z-[9999] pointer-events-auto">
       {!isOpen && (
         <button

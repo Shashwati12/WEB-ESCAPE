@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; 
-import axios from "axios";
+import { useParams } from "react-router-dom";
+import api from "../../api/axios";
 import useGameStore from "../../state/gameStore";
 import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 
 export default function MatchQuestGame() {
-  const { id } = useParams(); 
-  const level = parseInt(id, 10); 
+  const { id } = useParams();
+  const level = parseInt(id, 10);
 
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);
@@ -17,15 +17,13 @@ export default function MatchQuestGame() {
   const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
 
   useEffect(() => {
-    setCurrentLevel(level); 
+    setCurrentLevel(level);
   }, [level]);
 
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/v1/level/${level}`, {
-          withCredentials: true,
-        });
+        const response = await api.get(`/level/${level}`);
 
         const shuffled = response.data.data.cards
           .map(card => ({ ...card, uuid: crypto.randomUUID() }))
@@ -59,11 +57,10 @@ export default function MatchQuestGame() {
 
   useEffect(() => {
     if (levelData && matched.length === cards.length && cards.length > 0) {
-      axios
+      api
         .post(
-          `http://localhost:3000/api/v1/level/${level}/submit`,
-          { answer: "all pairs matched" },
-          { withCredentials: true }
+          `/level/${level}/submit`,
+          { answer: "all pairs matched" }
         )
         .then(res => {
           if (res.data.success) {

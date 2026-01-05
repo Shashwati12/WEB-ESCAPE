@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; 
-import axios from "axios";
+import { useParams } from "react-router-dom";
+import api from "../../api/axios";
 import useGameStore from "../../state/gameStore";
-import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
+import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 
 const MazeEscapeLevel = () => {
   const { id } = useParams();
-  const level = parseInt(id, 10); 
+  const level = parseInt(id, 10);
 
   const [maze, setMaze] = useState([]);
   const [player, setPlayer] = useState({ x: 0, y: 0 });
@@ -22,8 +22,8 @@ const MazeEscapeLevel = () => {
   }, [level]);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:3000/api/v1/level/${level}`, { withCredentials: true })
+    api
+      .get(`/level/${level}`)
       .then((res) => {
         setMaze(res.data.data.maze);
         setPlayer(res.data.data.start);
@@ -64,10 +64,9 @@ const MazeEscapeLevel = () => {
 
     if (newX === exit.x && newY === exit.y) {
       try {
-        const res = await axios.post(
-          `http://localhost:3000/api/v1/level/${level}/submit`,
-          { x: newX, y: newY },
-          { withCredentials: true }
+        const res = await api.post(
+          `/level/${level}/submit`,
+          { x: newX, y: newY }
         );
         if (res.data.success) {
           setMessage("🎉 You solved the maze!");
@@ -96,7 +95,7 @@ const MazeEscapeLevel = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [player, maze]);
 
-  if (showCompleteScreen) return <LevelCompleteScreen />; 
+  if (showCompleteScreen) return <LevelCompleteScreen />;
 
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white min-h-screen">

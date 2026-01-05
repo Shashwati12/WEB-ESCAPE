@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useGameStore from "../../state/gameStore";
-import axios from "axios";
+import api from "../../api/axios";
 import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
 import useAttempt from "../../hooks/useAttempt";
 
@@ -36,9 +36,8 @@ export default function FindObjectGame() {
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/v1/level/${level}`,
-          { withCredentials: true }
+        const response = await api.get(
+          `/level/${level}`
         );
         setLevelData(response.data);
       } catch (error) {
@@ -57,13 +56,12 @@ export default function FindObjectGame() {
     const clickY = e.clientY - rect.top;
 
     try {
-      const response = await axios.post(
-        `http://localhost:3000/api/v1/level/${level}/submit`,
+      const response = await api.post(
+        `/level/${level}/submit`,
         {
           x: clickX.toString(),
           y: clickY.toString(),
-        },
-        { withCredentials: true }
+        }
       );
 
       if (response.data.message === "Correct answer" && !found) {

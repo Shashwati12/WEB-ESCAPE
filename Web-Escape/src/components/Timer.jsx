@@ -1,12 +1,12 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 
 const Timer = ({ currentLevel, maxLevel }) => {
   const [seconds, setSeconds] = useState(null);
   const intervalRef = useRef(null);
 
-  
+
   useEffect(() => {
     const handleReset = () => {
       setSeconds(0);
@@ -18,9 +18,7 @@ const Timer = ({ currentLevel, maxLevel }) => {
   useEffect(() => {
     const fetchTimer = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/v1/game/progress/getTime', {
-          withCredentials: true,
-        });
+        const res = await api.get('/game/progress/getTime');
         setSeconds(res.data.timer || 0);
       } catch (err) {
         console.error('Error fetching timer:', err);
@@ -65,10 +63,9 @@ const Timer = ({ currentLevel, maxLevel }) => {
 
   const saveTimer = async () => {
     try {
-      await axios.patch(
-        'http://localhost:3000/api/v1/game/progress/time',
-        { timer: seconds },
-        { withCredentials: true }
+      await api.patch(
+        '/game/progress/time',
+        { timer: seconds }
       );
     } catch (err) {
       console.error('Error saving timer:', err);
@@ -84,11 +81,11 @@ const Timer = ({ currentLevel, maxLevel }) => {
   if (seconds === null) return null;
 
   return (
-   <div className="bg-white/90 backdrop-blur-lg px-4 py-2 rounded-2xl shadow text-green-700 text-[15px] font-semibold">
-   ⏱ Time: {formatTime(seconds)}
-   </div>
+    <div className="bg-white/90 backdrop-blur-lg px-4 py-2 rounded-2xl shadow text-green-700 text-[15px] font-semibold">
+      ⏱ Time: {formatTime(seconds)}
+    </div>
 
- );
+  );
 };
 
 export default Timer;
