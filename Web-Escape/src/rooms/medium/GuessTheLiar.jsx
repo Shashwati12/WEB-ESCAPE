@@ -1,30 +1,28 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; 
-import axios from "axios";
+import { useParams } from "react-router-dom";
+import api from "../../api/axios";
 import useGameStore from "../../state/gameStore";
-import LevelCompleteScreen from "../../components/LevelCompleteScreen"; 
+import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 
 export default function GuessLiarGame() {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const level = parseInt(id, 10);
 
   const [levelData, setLevelData] = useState(null);
   const [selected, setSelected] = useState(null);
   const [feedback, setFeedback] = useState("");
-  const [showCompleteScreen, setShowCompleteScreen] = useState(false); 
+  const [showCompleteScreen, setShowCompleteScreen] = useState(false);
 
   const { setCurrentLevel, completeLevel, updateScore } = useGameStore();
 
   useEffect(() => {
-    setCurrentLevel(level); 
+    setCurrentLevel(level);
   }, [level]);
 
   useEffect(() => {
     const fetchLevel = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/v1/level/${level}`, {
-          withCredentials: true,
-        });
+        const res = await api.get(`/level/${level}`);
         setLevelData(res.data);
       } catch (err) {
         console.error("Failed to fetch level data", err);
@@ -39,17 +37,16 @@ export default function GuessLiarGame() {
     setSelected(character);
 
     try {
-      const res = await axios.post(
-        `http://localhost:3000/api/v1/level/${level}/submit`,
-        { answer: character },
-        { withCredentials: true }
+      const res = await api.post(
+        `/level/${level}/submit`,
+        { answer: character }
       );
 
       if (res.data.success) {
         setFeedback("✅ Correct! You found the liar.");
         completeLevel(level);
         updateScore(10);
-        setTimeout(() => setShowCompleteScreen(true), 1500); 
+        setTimeout(() => setShowCompleteScreen(true), 1500);
       } else {
         setFeedback("❌ Wrong! That wasn't the liar.");
       }
@@ -96,13 +93,12 @@ export default function GuessLiarGame() {
             <button
               onClick={() => handleGuess(s.character)}
               disabled={selected !== null}
-              className={`text-base max-w-[60vw] px-4 py-3 rounded-xl font-semibold shadow-md transition-all duration-300 ${
-                selected === s.character
+              className={`text-base max-w-[60vw] px-4 py-3 rounded-xl font-semibold shadow-md transition-all duration-300 ${selected === s.character
                   ? "bg-green-600 text-white"
                   : selected
-                  ? "bg-gray-600 text-white opacity-60"
-                  : "bg-yellow-300 text-black hover:bg-yellow-400"
-              }`}
+                    ? "bg-gray-600 text-white opacity-60"
+                    : "bg-yellow-300 text-black hover:bg-yellow-400"
+                }`}
             >
               {s.character}: “{s.text}”
             </button>

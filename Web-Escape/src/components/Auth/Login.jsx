@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
-import axios from "axios";
+import api from "../../api/axios";
 import { USER_API_POINT } from "../../utils/Apicall";
 import { toast } from "sonner";
 import horrorBg2 from "../../assets/login3.png";
@@ -24,11 +24,10 @@ function Login() {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`${USER_API_POINT}/login`, formData, {
+      const res = await api.post(`${USER_API_POINT}/login`, formData, {
         headers: {
           "Content-Type": "application/json",
         },
-        withCredentials: true,
       });
 
       if (res.data.success) {
