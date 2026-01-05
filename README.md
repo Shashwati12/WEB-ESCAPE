@@ -1,9 +1,15 @@
+<div align="center">
+
 # 🎮 Web-Escape
 
 A thrilling horror-themed escape room game built with React and Node.js, featuring 10 challenging levels across three difficulty tiers. Players navigate through dark, atmospheric puzzles while racing against time to complete each challenge.
 
 ![React](https://img.shields.io/badge/React-19.1.0-61dafb.svg)
 ![Node.js](https://img.shields.io/badge/Node.js-Backend-339933.svg)
+
+</div>
+
+---
 
 ## 📖 Table of Contents
 
@@ -65,6 +71,8 @@ A thrilling horror-themed escape room game built with React and Node.js, featuri
 - **CORS**: cors 2.8.5
 - **Validation**: Zod 3.25.67
 
+---
+
 ## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
@@ -73,6 +81,8 @@ Before you begin, ensure you have the following installed:
 - **npm** or **yarn**
 - **MongoDB** (local or MongoDB Atlas)
 - **Git**
+
+---
 
 ## 🚀 Installation
 
@@ -96,6 +106,8 @@ npm install
 cd ../Web-Escape-Backend
 npm install
 \`\`\`
+
+---
 
 ## ⚙️ Configuration
 
@@ -140,6 +152,8 @@ SECRET_KEY=your-super-secret-jwt-key-change-this
 # Server Port (optional, defaults to 3000)
 PORT=3000
 \`\`\`
+
+---
 
 ## 🎮 Running the Application
 
@@ -186,6 +200,8 @@ npm run preview  # Preview production build
 cd Web-Escape-Backend
 npm start
 \`\`\`
+
+---
 
 ## 📁 Project Structure
 
@@ -268,20 +284,25 @@ Web-Escape-Backend/
 └── package.json
 \`\`\`
 
+---
+
 ## 🎯 Game Levels
 
 ### Easy Levels (1-3)
+
 1. **Shadow Shape** - Identify shapes from shadows
 2. **Match Quest** - Memory card matching game
 3. **Find Object** - Hidden object finder
 
 ### Medium Levels (4-7)
+
 4. **Guess the Liar** - Logic and deduction puzzle
 5. **Maze Escape** - Navigate through a wall maze
 6. **Output Predictor** - Predict code output
 7. **Pattern Breaker** - Solve pattern sequences
 
 ### Hard Levels (8-10)
+
 8. **Wordle Clone** - Word guessing game (6 attempts)
 9. **Flappy Bird** - Skill-based flying game (score 20+)
 10. **Final Escape** - Pac-Man style maze with enemies
@@ -289,6 +310,7 @@ Web-Escape-Backend/
 ## 📡 API Documentation
 
 ### Base URL
+
 \`\`\`
 Development: http://localhost:3000/api/v1
 \`\`\`
@@ -380,6 +402,8 @@ POST /game/level/:levelNumber/retry
 Authorization: Bearer {token}
 \`\`\`
 
+---
+
 ## 🔒 Authentication Flow
 
 1. User registers/logs in
@@ -388,6 +412,8 @@ Authorization: Bearer {token}
 4. Axios interceptor automatically adds token to all requests
 5. Backend middleware validates token
 6. Protected routes accessible with valid token
+
+---
 
 ## 🎨 Key Features Implementation
 
@@ -433,6 +459,8 @@ const useGameStore = create((set) => ({
 }));
 \`\`\`
 
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
@@ -451,7 +479,9 @@ Contributions are welcome! Please follow these steps:
 - Add comments for complex logic
 - Test your changes before submitting
 
-##  Future Enhancements
+---
+
+## 🚀 Future Enhancements
 
 - [ ] Multiplayer mode
 - [ ] More levels and difficulty tiers
@@ -462,6 +492,7 @@ Contributions are welcome! Please follow these steps:
 - [ ] Accessibility improvements
 - [ ] Dark/Light theme toggle
 
+---
 
 ## 🙏 Acknowledgments
 
@@ -469,5 +500,12 @@ Contributions are welcome! Please follow these steps:
 - Built with modern web technologies
 - Thanks to all contributors
 
+---
 
-**Happy Escaping! 🎮👻**
+<div align="center">
+
+### **Happy Escaping! 🎮👻**
+
+⭐ **Star this repo if you enjoyed the game!** ⭐
+
+</div>
