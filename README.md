@@ -22,8 +22,11 @@ A thrilling horror-themed escape room game built with React and Node.js, featuri
 - [Project Structure](#-project-structure)
 - [Game Levels](#-game-levels)
 - [API Documentation](#-api-documentation)
+- [Authentication Flow](#-authentication-flow)
+- [Key Features Implementation](#-key-features-implementation)
 - [Contributing](#-contributing)
-- [License](#-license)
+- [Future Enhancements](#-future-enhancements)
+- [Acknowledgments](#-acknowledgments)
 
 ## ✨ Features
 
@@ -115,32 +118,35 @@ npm install
 
 1. **Create Environment File** (Optional)
 
-\`\`\`bash
+```bash
 cd Web-Escape
 cp .env.example .env
-\`\`\`
+```
 
 2. **Configure API URL** (in `.env`)
 
-\`\`\`env
+```text
 # Default: http://localhost:3000
 VITE_API_URL=http://localhost:3000
-\`\`\`
+```
 
-> **Note**: If you don't create a `.env` file, the app will default to `http://localhost:3000`
+> **Note**: If you don't create a `.env` file, the app will default to  
+> `http://localhost:3000`
+
+---
 
 ### Backend Configuration
 
 1. **Create Environment File**
 
-\`\`\`bash
+```bash
 cd Web-Escape-Backend
 cp .env.example .env
-\`\`\`
+```
 
 2. **Configure Environment Variables** (in `.env`)
 
-\`\`\`env
+```text
 # MongoDB Connection
 MONGO_URL=mongodb://localhost:27017/web-escape
 # or use MongoDB Atlas
@@ -151,7 +157,7 @@ SECRET_KEY=your-super-secret-jwt-key-change-this
 
 # Server Port (optional, defaults to 3000)
 PORT=3000
-\`\`\`
+```
 
 ---
 
@@ -161,53 +167,56 @@ PORT=3000
 
 #### 1. Start MongoDB
 
-\`\`\`bash
+```bash
 # If using local MongoDB
 mongod
-\`\`\`
+```
 
 #### 2. Start Backend Server
 
-\`\`\`bash
+```bash
 cd Web-Escape-Backend
 npm run dev
-\`\`\`
+```
 
-The backend will run on `http://localhost:3000`
+The backend will run on  
+`http://localhost:3000`
 
 #### 3. Start Frontend Development Server
 
-\`\`\`bash
+```bash
 cd Web-Escape
 npm run dev
-\`\`\`
+```
 
-The frontend will run on `http://localhost:5173`
+The frontend will run on  
+`http://localhost:5173`
+
+---
 
 ### Production Build
 
 #### Frontend
 
-\`\`\`bash
+```bash
 cd Web-Escape
 npm run build
-npm run preview  # Preview production build
-\`\`\`
+npm run preview
+```
 
 #### Backend
 
-\`\`\`bash
+```bash
 cd Web-Escape-Backend
 npm start
-\`\`\`
-
+```
 ---
 
 ## 📁 Project Structure
 
 ### Frontend Structure
 
-\`\`\`
+```text
 Web-Escape/
 ├── public/              # Static assets
 │   ├── sprites/         # Game sprites
@@ -254,11 +263,11 @@ Web-Escape/
 │   ├── App.jsx          # Main app component
 │   └── main.jsx         # App entry point
 └── package.json
-\`\`\`
+```
 
 ### Backend Structure
 
-\`\`\`
+```text
 Web-Escape-Backend/
 ├── controllers/         # Route controllers
 │   ├── authController.js
@@ -282,7 +291,8 @@ Web-Escape-Backend/
 │   └── authValidator.js
 ├── server.js            # Server entry point
 └── package.json
-\`\`\`
+```
+
 
 ---
 
