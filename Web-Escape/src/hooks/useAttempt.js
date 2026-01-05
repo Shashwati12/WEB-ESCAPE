@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import useGameStore from "../state/gameStore"; 
+import api from "../api/axios";
+import useGameStore from "../state/gameStore";
 
 export default function useAttempt(level) {
   const [attemptsLeft, setAttemptsLeft] = useState(null);
@@ -12,9 +12,7 @@ export default function useAttempt(level) {
 
     const fetchAttempts = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/v1/game/progress`, {
-          withCredentials: true,
-        });
+        const res = await api.get(`/game/progress`);
         const levelAttempt = res.data.levelAttempts.find(
           (lvl) => lvl.levelNumber === level
         );
@@ -30,10 +28,9 @@ export default function useAttempt(level) {
 
   const handleUseAttempt = async () => {
     try {
-      const res = await axios.post(
-        `http://localhost:3000/api/v1/game/level/${level}/attempt-used`,
-        {},
-        { withCredentials: true }
+      const res = await api.post(
+        `/game/level/${level}/attempt-used`,
+        {}
       );
       setAttemptsLeft(res.data.attemptsLeft);
       if (res.data.attemptsLeft <= 0) setIsLocked(true);
@@ -45,15 +42,14 @@ export default function useAttempt(level) {
   const handleRetry = async () => {
     setRetrying(true);
     try {
-      const res = await axios.post(
-        `http://localhost:3000/api/v1/game/level/${level}/retry`,
-        {},
-        { withCredentials: true }
+      const res = await api.post(
+        `/game/level/${level}/retry`,
+        {}
       );
       setAttemptsLeft(res.data.newAttempts);
       setIsLocked(false);
       window.dispatchEvent(new Event('scoreUpdated'));
-      
+
 
     } catch (err) {
       console.error("Retry failed", err);
@@ -61,13 +57,13 @@ export default function useAttempt(level) {
       setRetrying(false);
     }
   };
-const updateAttempts = (val) => setAttemptsLeft(val);
+  const updateAttempts = (val) => setAttemptsLeft(val);
   return {
     attemptsLeft,
     isLocked,
     retrying,
     handleUseAttempt,
     handleRetry,
-     updateAttempts
+    updateAttempts
   };
 }

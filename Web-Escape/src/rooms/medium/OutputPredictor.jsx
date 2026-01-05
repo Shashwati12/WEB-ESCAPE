@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import useGameStore from "../../state/gameStore";
 import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 import useAttempt from "../../hooks/useAttempt";
@@ -77,15 +77,15 @@ export default function OutputPredictorLevel() {
             fogEffect.current = window.VANTA.FOG({
               el: fogRef.current,
               THREE: window.THREE,
-          highlightColor: 0x1A0034,  
-midtoneColor:   0x5A189A,  
-lowlightColor:  0x4D0011, 
-baseColor:      0x070707, 
+              highlightColor: 0x1A0034,
+              midtoneColor: 0x5A189A,
+              lowlightColor: 0x4D0011,
+              baseColor: 0x070707,
               speed: 4.0,         // Faster flow
-              blurFactor: 0.9,   
-              zoom: 0.8,         
-              waveHeight: 15,    
-              waveSpeed: 1.5,     
+              blurFactor: 0.9,
+              zoom: 0.8,
+              waveHeight: 15,
+              waveSpeed: 1.5,
             });
           };
           document.body.appendChild(fogScript);
@@ -118,7 +118,7 @@ baseColor:      0x070707,
   // Set current level and fetch question data
   useEffect(() => setCurrentLevel(level), [level, setCurrentLevel]);
   useEffect(() => {
-    axios.get(`http://localhost:3000/api/v1/level/${level}`, { withCredentials: true })
+    api.get(`/level/${level}`)
       .then(res => setLevelData(res.data))
       .catch(() => setFeedback("⚠️ Failed to load the oracle's vision..."));
   }, [level]);
@@ -128,10 +128,9 @@ baseColor:      0x070707,
     setIsSubmitting(true);
     setFeedback("");
     try {
-      const res = await axios.post(
-        `http://localhost:3000/api/v1/level/${level}/submit`,
-        { answer: userAnswer },
-        { withCredentials: true }
+      const res = await api.post(
+        `/level/${level}/submit`,
+        { answer: userAnswer }
       );
       if (res.data.message === "Correct answer") {
         setFeedback("✅ The prophecy is true!");
@@ -170,20 +169,20 @@ baseColor:      0x070707,
       {/* Game UI overlay */}
       <div style={{ position: 'relative', zIndex: 1 }} className="flex flex-col items-center justify-center min-h-screen p-6">
         <h1 className="text-4xl font-bold mb-8 flex items-center">
-          <span className="float mr-3" style={{ 
-            color: '#9D4EDD', 
+          <span className="float mr-3" style={{
+            color: '#9D4EDD',
             filter: 'drop-shadow(0 0 6px #3F0071)',
             animation: 'ghostGlow 3s infinite'
           }}>🔮</span>
-          <span className="flicker" style={{ 
-            color: '#E5E5E5', 
+          <span className="flicker" style={{
+            color: '#E5E5E5',
             textShadow: '0 0 8px #9D4EDD',
             background: 'linear-gradient(90deg, #9D4EDD, #B3001B)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>Predict the output </span>
         </h1>
-        
+
         <div className="relative mb-8 max-w-2xl w-full">
           <div className="absolute inset-0 rounded-xl" style={{
             background: 'linear-gradient(135deg, #3F0071, #B3001B)',
@@ -191,8 +190,8 @@ baseColor:      0x070707,
             opacity: 0.7,
             zIndex: -1
           }}></div>
-          <pre className="relative p-6 rounded-xl font-mono whitespace-pre-wrap text-center" style={{ 
-            color: '#E5E5E5', 
+          <pre className="relative p-6 rounded-xl font-mono whitespace-pre-wrap text-center" style={{
+            color: '#E5E5E5',
             textShadow: '0 0 6px #9D4EDD',
             animation: 'ghostGlow 4s infinite alternate',
             backgroundColor: 'rgba(13, 13, 13, 0.8)',
@@ -204,9 +203,9 @@ baseColor:      0x070707,
         </div>
 
         {attemptsLeft != null && (
-          <p className="mb-4 flex items-center" style={{ 
-            color: '#D0FF00', 
-            animation: 'ghostGlow 2s infinite alternate' 
+          <p className="mb-4 flex items-center" style={{
+            color: '#D0FF00',
+            animation: 'ghostGlow 2s infinite alternate'
           }}>
             <span className="mr-2">🌀</span> attempts remaining: {attemptsLeft}
           </p>
@@ -225,9 +224,9 @@ baseColor:      0x070707,
                 onChange={e => setUserAnswer(e.target.value)}
                 placeholder="Enter Your Output"
                 className="w-full px-4 py-3 text-center rounded-xl transition-all duration-300"
-                style={{ 
-                  backgroundColor: 'rgba(229, 229, 229, 0.1)', 
-                  color: '#E5E5E5', 
+                style={{
+                  backgroundColor: 'rgba(229, 229, 229, 0.1)',
+                  color: '#E5E5E5',
                   border: '2px solid #3F0071',
                   backdropFilter: 'blur(5px)'
                 }}
@@ -247,13 +246,13 @@ baseColor:      0x070707,
                 animation: 'ghostGlow 3s infinite alternate'
               }}></div>
             </div>
-            
+
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || isLocked}
               className="px-8 py-3 rounded-xl font-bold transition-all duration-300 relative overflow-hidden pulse"
-              style={{ 
-                backgroundColor: isLocked ? '#4a4a4a' : '#9D4EDD', 
+              style={{
+                backgroundColor: isLocked ? '#4a4a4a' : '#9D4EDD',
                 color: '#E5E5E5',
                 minWidth: '200px'
               }}
@@ -287,12 +286,12 @@ baseColor:      0x070707,
         )}
 
         {feedback && (
-          <p className={`mt-6 text-lg font-medium ${feedback.startsWith('✅') ? 'pulse' : ''}`} 
-            style={{ 
-              color: feedback.startsWith('✅') ? '#00FF9D' : 
-                     feedback.startsWith('❌') ? '#FF4D6B' : '#D0FF00',
-              textShadow: `0 0 10px ${feedback.startsWith('✅') ? '#00FF9D' : 
-                          feedback.startsWith('❌') ? '#FF4D6B' : '#D0FF00'}`,
+          <p className={`mt-6 text-lg font-medium ${feedback.startsWith('✅') ? 'pulse' : ''}`}
+            style={{
+              color: feedback.startsWith('✅') ? '#00FF9D' :
+                feedback.startsWith('❌') ? '#FF4D6B' : '#D0FF00',
+              textShadow: `0 0 10px ${feedback.startsWith('✅') ? '#00FF9D' :
+                feedback.startsWith('❌') ? '#FF4D6B' : '#D0FF00'}`,
               animation: feedback.startsWith('❌') ? 'none' : ''
             }}>
             {feedback.startsWith('✅') && '✨ '}
@@ -300,11 +299,11 @@ baseColor:      0x070707,
             {feedback}
           </p>
         )}
-        
+
         {finished && (
           <div className="mt-8 text-center">
-            <p className="text-3xl font-bold mb-2 pulse" style={{ 
-              color: '#D0FF00', 
+            <p className="text-3xl font-bold mb-2 pulse" style={{
+              color: '#D0FF00',
               textShadow: '0 0 15px #D0FF00',
               background: 'linear-gradient(90deg, #9D4EDD, #D0FF00)',
               WebkitBackgroundClip: 'text',
@@ -317,14 +316,14 @@ baseColor:      0x070707,
             </p>
           </div>
         )}
-        
+
         {isLocked && (
           <button
             onClick={handleRetry}
             disabled={retrying}
             className="mt-6 px-6 py-3 rounded-xl font-bold transition-all flicker"
-            style={{ 
-              backgroundColor: '#B3001B', 
+            style={{
+              backgroundColor: '#B3001B',
               color: '#E5E5E5',
               border: '1px solid #FF4D6B'
             }}

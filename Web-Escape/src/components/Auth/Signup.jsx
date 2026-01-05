@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
-import axios from "axios";
+import api from "../../api/axios";
 import { USER_API_POINT } from "../../utils/Apicall";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -39,7 +39,7 @@ function Signup() {
     }
 
     try {
-      const res = await axios.post(`${USER_API_POINT}/register`, formData, {
+      const res = await api.post(`${USER_API_POINT}/register`, formData, {
         headers: {
           "Content-Type": "application/json",
         },

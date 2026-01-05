@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom'; 
+import { useParams } from 'react-router-dom';
 import birdImg from '../../assets/image.png';
 import birdFlapImg from '../../assets/image.png';
 import bgImg from '../../assets/Background-Image.png';
 import useGameStore from '../../state/gameStore';
-import LevelCompleteScreen from '../../components/LevelCompleteScreen'; 
+import LevelCompleteScreen from '../../components/LevelCompleteScreen';
 import useAttempt from '../../hooks/useAttempt';
-import axios from 'axios';
+import api from '../../api/axios';
 
 const FlappyBirdLevel = () => {
-  const { id } = useParams(); 
-  const level = parseInt(id, 10); 
+  const { id } = useParams();
+  const level = parseInt(id, 10);
   const [gameState, setGameState] = useState('Start');
   const [score, setScore] = useState(0);
   const [birdTop, setBirdTop] = useState((40 * window.innerHeight) / 100);
@@ -19,8 +19,8 @@ const FlappyBirdLevel = () => {
   const [frameCount, setFrameCount] = useState(0);
   const [levelCompleted, setLevelCompleted] = useState(false);
   const [showCompleteScreen, setShowCompleteScreen] = useState(false);
-  const [retrying, setRetrying] = useState(false); 
-   const { attemptsLeft, updateAttempts } = useAttempt(level); 
+  const [retrying, setRetrying] = useState(false);
+  const { attemptsLeft, updateAttempts } = useAttempt(level);
 
   const moveSpeed = 2.8;
   const gravity = 0.18;
@@ -34,21 +34,19 @@ const FlappyBirdLevel = () => {
 
   const { currentLevel, setCurrentLevel, completeLevel, updateScore } = useGameStore();
 
-     
-useEffect(() => {
-  updateScore(score); // 🔄 Automatically reflect changes
-}, [score]);
 
   useEffect(() => {
-    setCurrentLevel(level); 
+    updateScore(score); // 🔄 Automatically reflect changes
+  }, [score]);
+
+  useEffect(() => {
+    setCurrentLevel(level);
   }, [level]);
 
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
-        await axios.get(`http://localhost:3000/api/v1/level/${level}`, {
-          withCredentials: true,
-        });
+        await api.get(`/level/${level}`);
       } catch (err) {
         console.error('Error fetching level:', err);
       }
@@ -56,35 +54,33 @@ useEffect(() => {
     fetchLevelData();
   }, [level]);
 
- const resetGame = (preserveScore = false) => {
-  setGameState('Start');
-  setBirdTop((40 * window.innerHeight) / 100);
-  setBirdDy(0);
-  if (!preserveScore) setScore(0); // Only reset score if not retrying
-  setPipes([]);
-  setFrameCount(0);
-  setLevelCompleted(false);
-  setShowCompleteScreen(false);
-};
+  const resetGame = (preserveScore = false) => {
+    setGameState('Start');
+    setBirdTop((40 * window.innerHeight) / 100);
+    setBirdDy(0);
+    if (!preserveScore) setScore(0); // Only reset score if not retrying
+    setPipes([]);
+    setFrameCount(0);
+    setLevelCompleted(false);
+    setShowCompleteScreen(false);
+  };
 
 
   const handleRetry = async () => {
     setRetrying(true);
     try {
-      const response= await axios.post(
-         `http://localhost:3000/api/v1/game/level/${level}/retry`,
-        {},
-        { withCredentials: true }
-         
+      const response = await api.post(
+        `/game/level/${level}/retry`,
+        {}
       ); const { newAttempts, scoreLeft } = response.data;
-         updateAttempts(newAttempts);
-      
-    updateScore(scoreLeft);   
-    setScore(scoreLeft); 
-            window.dispatchEvent(new Event("scoreUpdated"));
+      updateAttempts(newAttempts);
 
-       resetGame(true);   
-     
+      updateScore(scoreLeft);
+      setScore(scoreLeft);
+      window.dispatchEvent(new Event("scoreUpdated"));
+
+      resetGame(true);
+
     } catch (err) {
       console.error('Retry failed', err);
       alert('⚠️ Retry failed. Try again later.');
@@ -193,10 +189,10 @@ useEffect(() => {
       setLevelCompleted(true);
       completeLevel(level);
       updateScore(15);
-      axios.post(`http://localhost:3000/api/v1/level/${level}/submit`, {
+      api.post(`/level/${level}/submit`, {
         score: score
-      }, { withCredentials: true }).catch(console.error);
-      setTimeout(() => setShowCompleteScreen(true), 1500); 
+      }).catch(console.error);
+      setTimeout(() => setShowCompleteScreen(true), 1500);
     }
   };
 
@@ -204,7 +200,7 @@ useEffect(() => {
     setGameState('End');
   };
 
-  if (showCompleteScreen) return <LevelCompleteScreen />; 
+  if (showCompleteScreen) return <LevelCompleteScreen />;
 
   return (
     <div

@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import useGameStore from '../../state/gameStore';
 import useAttempt from '../../hooks/useAttempt';
 const TILE_SIZE = 32;
 const ENEMY_SPEED = 500;
 const GHOST_COLORS = ['red', 'blue', 'orange', 'pink'];
-import { useParams } from 'react-router-dom'; 
+import { useParams } from 'react-router-dom';
 export default function PacmanMazeGame() {
   const [maze, setMaze] = useState([]);
   const [playerPos, setPlayerPos] = useState({ x: 1, y: 1 });
@@ -15,17 +15,17 @@ export default function PacmanMazeGame() {
     { x: 1, y: 13, color: 'orange' },
     { x: 12, y: 7, color: 'pink' }
   ]);
-    const { id } = useParams(); 
-   const level = parseInt(id, 10); 
+  const { id } = useParams();
+  const level = parseInt(id, 10);
   const [dotsLeft, setDotsLeft] = useState(0);
   const [status, setStatus] = useState("loading");
   const [score, setScore] = useState(0);
   const { attemptsLeft, updateAttempts } = useAttempt(level);
   const { currentLevel, completeLevel, updateScore } = useGameStore();
-  
-   useEffect(() => {
-  updateScore(score); // 🔄 Automatically reflect changes
-}, [score]);
+
+  useEffect(() => {
+    updateScore(score); // 🔄 Automatically reflect changes
+  }, [score]);
 
   const dotSound = useRef(null);
   const winSound = useRef(null);
@@ -34,9 +34,7 @@ export default function PacmanMazeGame() {
   // ⬇️ Fetch maze defined outside so it's reusable in retry
   const fetchMaze = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/v1/level/10', {
-        withCredentials: true
-      });
+      const res = await api.get('/level/10');
       const levelMaze = res.data.data.maze;
       setMaze(levelMaze);
       let count = 0;
@@ -109,9 +107,9 @@ export default function PacmanMazeGame() {
       if (enemy.x === playerPos.x && enemy.y === playerPos.y && status === "playing") {
         setStatus("lost");
         loseSound.current?.play();
-        axios.post(`http://localhost:3000/api/v1/level/10/submit`, {
+        api.post(`/level/10/submit`, {
           answer: "caught",
-        }, { withCredentials: true });
+        });
       }
     });
   }, [enemies, playerPos]);
@@ -120,9 +118,9 @@ export default function PacmanMazeGame() {
     if (dotsLeft === 0 && status === "playing") {
       setStatus("won");
       winSound.current?.play();
-      axios.post(`http://localhost:3000/api/v1/level/10/submit`, {
+      api.post(`/level/10/submit`, {
         answer: 'victory',
-      }, { withCredentials: true })
+      })
         .then(res => {
           if (res.data.success) {
             completeLevel(currentLevel);
@@ -144,12 +142,11 @@ export default function PacmanMazeGame() {
   };
 
 
-    const handleRetryWithAPI = async () => {
+  const handleRetryWithAPI = async () => {
     try {
-      await axios.post(
-        `http://localhost:3000/api/v1/game/level/10/retry`,
-        {},
-        { withCredentials: true }
+      await api.post(
+        `/game/level/10/retry`,
+        {}
       );
     } catch (err) {
       console.error('Retry API failed', err);

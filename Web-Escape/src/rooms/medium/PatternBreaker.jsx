@@ -191,11 +191,11 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 import useGameStore from "../../state/gameStore";
 import LevelCompleteScreen from "../../components/LevelCompleteScreen";
 import useAttempt from "../../hooks/useAttempt";
-import Particles from "../../components/particle";
+import Particles from "../../components/Particle";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function PatternBreakerLevel() {
@@ -209,7 +209,7 @@ export default function PatternBreakerLevel() {
   const [finished, setFinished] = useState(false);
   const [showCompleteScreen, setShowCompleteScreen] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
- 
+
   const [isFocused, setIsFocused] = useState(false);
 
   const inputRef = useRef(null);
@@ -230,9 +230,8 @@ export default function PatternBreakerLevel() {
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/v1/level/${level}`,
-          { withCredentials: true }
+        const response = await api.get(
+          `/level/${level}`
         );
         setLevelData(response.data);
       } catch (error) {
@@ -250,10 +249,9 @@ export default function PatternBreakerLevel() {
     setFeedback("");
 
     try {
-      const response = await axios.post(
-        `http://localhost:3000/api/v1/level/${level}/submit`,
-        { answer: userAnswer },
-        { withCredentials: true }
+      const response = await api.post(
+        `/level/${level}/submit`,
+        { answer: userAnswer }
       );
 
       const correct = response.data.message === "Correct answer";
@@ -283,7 +281,7 @@ export default function PatternBreakerLevel() {
     setIsSubmitting(false);
   };
 
- 
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -301,7 +299,7 @@ export default function PatternBreakerLevel() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0D0D0D] via-[#1a0e2a] to-[#0D0D0D] text-white overflow-hidden font-sans">
-    
+
       <div className="absolute inset-0 z-0">
         <Particles
           particleColors={["#ffffff", "#ffffff"]}
@@ -315,7 +313,7 @@ export default function PatternBreakerLevel() {
         />
       </div>
 
-      
+
       {showCelebration && (
         <div className="absolute inset-0 z-20 pointer-events-none">
           <Particles
@@ -332,8 +330,8 @@ export default function PatternBreakerLevel() {
       )}
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6">
-       
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -346,7 +344,7 @@ export default function PatternBreakerLevel() {
         </motion.div>
 
         {/* Question Card */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.2 }}
@@ -360,7 +358,7 @@ export default function PatternBreakerLevel() {
                   {[...Array(3)].map((_, i) => (
                     <motion.div
                       key={i}
-                      animate={{ 
+                      animate={{
                         scale: attemptsLeft > i ? [1, 1.2, 1] : 1,
                         opacity: attemptsLeft > i ? 1 : 0.3
                       }}
@@ -375,8 +373,8 @@ export default function PatternBreakerLevel() {
                 <span className="text-sm text-yellow-300">x{attemptsLeft}</span>
               </div>
             </div>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -388,11 +386,11 @@ export default function PatternBreakerLevel() {
             </motion.div>
           </div>
 
-        
-         
+
+
           {/* Input + Submit */}
           {!finished && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
@@ -412,7 +410,7 @@ export default function PatternBreakerLevel() {
                   className="px-4 py-3 rounded-xl text-black w-full text-center bg-white/95 border border-white/30 focus:outline-none focus:ring-0 disabled:opacity-50"
                 />
                 {isFocused && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="absolute -bottom-6 left-0 right-0 text-center text-xs text-purple-300"
@@ -450,13 +448,12 @@ export default function PatternBreakerLevel() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`mt-6 text-xl text-center font-bold ${
-                  feedback.startsWith("✅")
+                className={`mt-6 text-xl text-center font-bold ${feedback.startsWith("✅")
                     ? "text-green-400"
                     : feedback.startsWith("❌")
-                    ? "text-red-400"
-                    : "text-yellow-300"
-                }`}
+                      ? "text-red-400"
+                      : "text-yellow-300"
+                  }`}
               >
                 {feedback}
               </motion.p>
@@ -465,7 +462,7 @@ export default function PatternBreakerLevel() {
 
           {/* Puzzle Solved */}
           {finished && (
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -481,7 +478,7 @@ export default function PatternBreakerLevel() {
 
           {/* Retry Button */}
           {isLocked && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
@@ -508,36 +505,36 @@ export default function PatternBreakerLevel() {
           )}
         </motion.div>
       </div>
-      
+
       {/* Floating decorative elements */}
-      <motion.div 
+      <motion.div
         className="absolute top-10 left-10 w-8 h-8 rounded-full bg-purple-500/20"
-        animate={{ 
+        animate={{
           y: [0, -20, 0],
         }}
-        transition={{ 
+        transition={{
           duration: 3,
           repeat: Infinity,
           repeatType: "reverse"
         }}
       />
-      <motion.div 
+      <motion.div
         className="absolute bottom-20 right-10 w-6 h-6 rounded-full bg-pink-500/30"
-        animate={{ 
+        animate={{
           y: [0, 15, 0],
         }}
-        transition={{ 
+        transition={{
           duration: 4,
           repeat: Infinity,
           repeatType: "reverse"
         }}
       />
-      <motion.div 
+      <motion.div
         className="absolute top-1/3 left-1/4 w-4 h-4 rounded-full bg-teal-400/20"
-        animate={{ 
+        animate={{
           scale: [1, 1.5, 1],
         }}
-        transition={{ 
+        transition={{
           duration: 5,
           repeat: Infinity,
           repeatType: "reverse"

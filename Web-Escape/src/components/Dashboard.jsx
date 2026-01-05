@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {useNavigate} from "react-router-dom";
-import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+import api from '../api/axios';
 
 const TOTAL_LEVELS = 10;
 
@@ -12,9 +12,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/v1/game/progress', {
-          withCredentials: true,
-        });
+        const response = await api.get('/game/progress');
         setProgress(response.data);
       } catch (error) {
         console.error('Failed to fetch progress:', error);
@@ -28,9 +26,7 @@ const Dashboard = () => {
 
   const handleStartNewGame = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/game/progress/reset',{},{
-        withCredentials: true, 
-      });
+      const response = await api.post('/game/progress/reset', {});
 
       setProgress(response.data);
       navigate(`/level/1`);
@@ -40,7 +36,7 @@ const Dashboard = () => {
   };
 
   const handleResumeGame = () => {
-    const level =  progress?.levelStatus?.filter(Boolean).length + 1|| 0;
+    const level = progress?.levelStatus?.filter(Boolean).length + 1 || 0;
     navigate(`/level/${level}`);
   };
 
@@ -70,8 +66,8 @@ const Dashboard = () => {
 
       {allCompleted && (
         <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold text-yellow-400 mb-2">Congratulations!</h2>
-        <p>You’ve completed all levels. Want to play again?</p>
+          <h2 className="text-2xl font-semibold text-yellow-400 mb-2">Congratulations!</h2>
+          <p>You’ve completed all levels. Want to play again?</p>
         </div>
       )}
 
