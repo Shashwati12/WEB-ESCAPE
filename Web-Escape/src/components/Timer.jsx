@@ -8,8 +8,14 @@ const Timer = ({ currentLevel, maxLevel }) => {
 
 
   useEffect(() => {
-    const handleReset = () => {
+    const handleReset = async () => {
       setSeconds(0);
+      // Save the reset timer value to backend immediately
+      try {
+        await api.patch('/game/progress/time', { timer: 0 });
+      } catch (err) {
+        console.error('Error resetting timer:', err);
+      }
     };
     window.addEventListener('resetTimer', handleReset);
     return () => window.removeEventListener('resetTimer', handleReset);
@@ -36,36 +42,36 @@ const Timer = ({ currentLevel, maxLevel }) => {
 
     return () => {
       clearInterval(intervalRef.current);
-      saveTimer();
+      saveTimer(seconds);
     };
   }, [seconds]);
 
   useEffect(() => {
     if (seconds === null) return;
     const interval = setInterval(() => {
-      saveTimer();
+      saveTimer(seconds);
     }, 5000);
     return () => clearInterval(interval);
   }, [seconds]);
 
   useEffect(() => {
     if (seconds !== null && currentLevel !== 1) {
-      saveTimer();
+      saveTimer(seconds);
     }
   }, [currentLevel]);
 
   useEffect(() => {
     if (currentLevel > maxLevel) {
       clearInterval(intervalRef.current);
-      saveTimer();
+      saveTimer(seconds);
     }
   }, [currentLevel, maxLevel]);
 
-  const saveTimer = async () => {
+  const saveTimer = async (timerValue = seconds) => {
     try {
       await api.patch(
         '/game/progress/time',
-        { timer: seconds }
+        { timer: timerValue }
       );
     } catch (err) {
       console.error('Error saving timer:', err);

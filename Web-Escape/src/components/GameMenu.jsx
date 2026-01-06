@@ -22,11 +22,13 @@ const GameMenu = () => {
 
   const handleRestartGame = async () => {
     try {
+      // Reset progress in backend (including timer to 0)
       await api.post('/game/progress/reset', {});
 
-      window.dispatchEvent(new Event('resetTimer'));
-      window.dispatchEvent(new Event('scoreUpdated'));
+      // Add a small delay to ensure backend has completed the reset
+      await new Promise(resolve => setTimeout(resolve, 200));
 
+      // Hard refresh to level 1 - Timer will fetch reset value (0) from backend
       window.location.href = '/level/1';
 
     } catch (error) {

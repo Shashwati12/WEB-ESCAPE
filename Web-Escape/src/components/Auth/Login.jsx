@@ -31,6 +31,13 @@ function Login() {
       });
 
       if (res.data.success) {
+        // Store token and username in localStorage
+        if (res.data.user?.token) {
+          localStorage.setItem("token", res.data.user.token);
+        }
+        if (res.data.user?.username) {
+          localStorage.setItem("username", res.data.user.username);
+        }
         toast.success("Welcome back to the shadows");
         navigate("/dashboard");
       }

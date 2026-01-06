@@ -161,6 +161,8 @@ PORT=3000
 
 ---
 
+---
+
 ## 🎮 Running the Application
 
 ### Development Mode
@@ -210,6 +212,8 @@ npm run preview
 cd Web-Escape-Backend
 npm start
 ```
+---
+
 ---
 
 ## 📁 Project Structure
@@ -293,6 +297,8 @@ Web-Escape-Backend/
 └── package.json
 ```
 
+
+---
 
 ---
 

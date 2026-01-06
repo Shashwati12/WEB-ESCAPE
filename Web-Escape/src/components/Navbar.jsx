@@ -10,7 +10,7 @@
 //   const navigate = useNavigate();
 //   const [user, setUser] = useState(null);
 
- 
+
 
 //   const handleLogout = async () => {
 //     console.log("logout button clicked");
@@ -54,10 +54,10 @@
 //         <div className="flex items-center gap-4">
 //           {user ? (
 //             <div className="flex gap-4">
-              
-                
-       
-              
+
+
+
+
 
 //               <button
 //                 onClick={handleLogout}
@@ -89,34 +89,70 @@
 // export default Navbar;
 
 
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated by checking for token
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    setIsAuthenticated(false);
+    navigate("/");
+  };
+
   return (
     <nav className="bg-blue-500 px-6 py-4 flex justify-between items-center">
       <div className="text-white font-bold text-xl">
         EscapeTheWeb
       </div>
-      <div className="space-x-6">
+      <div className="space-x-6 flex items-center">
         <Link
           to="/"
           className="text-white hover:text-gray-300 font-semibold"
         >
           Home
         </Link>
-        <Link
-          to="/login"
-          className="text-white hover:text-gray-300 font-semibold"
-        >
-          Login
-        </Link>
-        <Link
-          to="/signup"
-          className="text-white hover:text-gray-300 font-semibold"
-        >
-          Signup
-        </Link>
+
+        {isAuthenticated ? (
+          <>
+            <Link
+              to="/dashboard"
+              className="text-white hover:text-gray-300 font-semibold"
+            >
+              Dashboard
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded transition"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/login"
+              className="text-white hover:text-gray-300 font-semibold"
+            >
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="text-white hover:text-gray-300 font-semibold"
+            >
+              Signup
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );
